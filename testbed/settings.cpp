@@ -81,16 +81,18 @@ void Settings::Save()
 	fclose(file);
 }
 
+#include <iostream>
 void Settings::Load()
 {
 	char* data = nullptr;
 	int size = 0;
+	
 	bool found = sReadFile(data, size, fileName);
+	std::cout << found << " " << fileName << "\n";
 	if (found ==  false)
 	{
 		return;
 	}
-
 	const sajson::document& document = sajson::parse(sajson::dynamic_allocation(), sajson::mutable_string_view(size, data));
 	if (document.is_valid() == false)
 	{

@@ -5,6 +5,14 @@ Chromosome::Chromosome() {
     genes.fill(0.f);
 }
 
+Chromosome::Chromosome(std::array<float, 32> chromosome)
+{
+    for(int i = 0; i < 32; ++i)
+    {
+        genes.at(i) = chromosome.at(i);
+    }
+}
+
 void Chromosome::Random() {
     for(int i = 0; i < 8; i++) {
         genes[i * 4] = RandomFloat(0, 3.14 * 2);

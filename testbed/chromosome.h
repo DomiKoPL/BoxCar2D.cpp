@@ -13,6 +13,7 @@ struct Chromosome {
     */
 
     Chromosome();
+    Chromosome(std::array<float, 32> chromosome);
     void Random();
     float GetVertexAngle(int idx) const;
     float GetVertexMagnitude(int idx) const;

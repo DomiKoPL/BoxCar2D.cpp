@@ -10,7 +10,11 @@ set (TESTBED_SOURCE_FILES
 	settings.cpp
 	test.cpp
 	test.h
-	tests/domiko.cpp
+	chromosome.h
+	chromosome.cpp
+	car.h
+	car.cpp
+	tests/straight_line.cpp
 )
 
 add_executable(testbed ${TESTBED_SOURCE_FILES})

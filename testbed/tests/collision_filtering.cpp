@@ -69,7 +69,7 @@ public:
 		b2FixtureDef triangleShapeDef;
 		triangleShapeDef.shape = &polygon;
 		triangleShapeDef.density = 1.0f;
-
+		
 		triangleShapeDef.filter.groupIndex = k_smallGroup;
 		triangleShapeDef.filter.categoryBits = k_triangleCategory;
 		triangleShapeDef.filter.maskBits = k_triangleMask;

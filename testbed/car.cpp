@@ -1,4 +1,6 @@
 #include "car.h"
+#include <exception>
+#include <iostream>
 
 Car::Car() {
 
@@ -66,4 +68,25 @@ Car::Car(const Chromosome& chromosome, b2World* world, float init_speed) {
             m_springs[i]->SetMotorSpeed(init_speed);
         }
     }
+}
+
+void Car::DetroyBody() {
+    for(auto& whell : m_wheels) {
+        if(whell != nullptr) {
+            // whell->GetWorld()->DestroyBody(whell);
+            whell->SetEnabled(false);
+        }
+    }
+
+    if(m_body != nullptr) {
+        // m_body->GetWorld()->DestroyBody(m_body);
+        m_body->SetEnabled(false);
+    }
+
+    // for(auto& spring : m_springs) {
+    //     if(spring != nullptr) {
+    //         // spring->GetBodyA()->GetWorld()->DestroyJoint(spring);
+    //         delete spring;
+    //     }
+    // }
 }

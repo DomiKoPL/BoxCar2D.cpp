@@ -1,95 +1,50 @@
-#pragma GCC optimize ("Ofast") 
+// #pragma GCC optimize ("Ofast") 
 #include "./test.h"
 #include "./settings.h"
-#include "./tests/straight_line.hpp"
+#include "chromosome.h"
+#include "testcase.hpp"
 
 #include <iostream>
 #include <chrono>
 #include <random>
+#include <functional>
+#include <future>
+#include <thread>
 
 using f_T = float;
-std::vector<float> evaluate_function(std::array<Chromosome, 20> chromosomes)
-{
-    // Trzeba wiedzieć jaki test
-    // create_fnc
-    // s_test->Step(s_settings);
-    Settings s_settings;
-    StraightLine* straightLine = new StraightLine();
-    straightLine->testbedMode = false;
-    // std::array<Chromosome, 20> chromosomes;
-    // for(auto &p : chromosomes) p.Random();
-    straightLine->CreateCars(chromosomes);
-
-    auto tp_ = std::chrono::high_resolution_clock::now();
-    auto tp = std::chrono::time_point(tp_);
-    auto end_tp = std::chrono::time_point(tp_ + std::chrono::seconds(1));
-    std::cout << "Evaluating cars\n";
-    while(std::chrono::high_resolution_clock::now() < end_tp)
-    {
-        straightLine->Step(s_settings);
-        
-        // for (int j = 0; j < 20; ++j)
-        // {
-        //     std::cout << "Car " << j << "\tx: " << 
-        //         straightLine->m_cars.at(j)->GetBody()->GetPosition().x << "\ty: " << 
-        //         straightLine->m_cars.at(j)->GetBody()->GetPosition().y << "\n";
-        // }
-
-        // std::cout << "\n\n";
-    }
-    std::cout << "Cars evaluated\n";
-    std::vector<float> dists;
-
-    for(int i = 0; i < 20; ++i)
-    {
-        dists.push_back(1000.0f - straightLine->m_cars.at(i)->GetBody()->GetPosition().x);
-    }
-    return dists;
-}
-
 
 template <int CHR_LEN, int mu, int lambda>
 class ES_solver
 {
 public:
-
-    ES_solver(int* F, f_T K, bool is_es_plus, int max_iterations = 200)
-        : is_plus{is_es_plus}, max_iterations{max_iterations}
+    
+    ES_solver(std::function<std::vector<f_T>(const std::vector<Chromosome>&, TestCase*)> F, TestCase *test_case, f_T K, bool is_es_plus)
+        : is_plus{is_es_plus}, F{F}
     {
         static_assert(mu <= lambda);
-        // std::cout << K << "\t" << CHR_LEN << "\t" << std::sqrt(2.0 * CHR_LEN) << "\t" << K / std::sqrt(2.0 * CHR_LEN) << "\n";
         t  = K / std::sqrt(2.0 * CHR_LEN);
         t0 = K / std::sqrt(2.0 * std::sqrt(CHR_LEN));
         gen = std::mt19937(rd());
+        
         for(int i = 0; i < mu ; ++i) std::cout << i << "\t" << population_values.at(i) << "\n";
         initialize_sigmas();
         initialize_population();
-        evaluate_population(0, mu);
+        evaluate_population(test_case, 0, mu);
         std::cout << "\tbest value " << *std::min_element(std::begin(population_values), std::begin(population_values) + mu) << "\n";
     }
 
-    void run()
+    void run(int iterations, TestCase *test_case)
     {
-        for(int i = 0; i < max_iterations; ++i)
+        for(int i = 0; i < iterations; ++i)
         {
             std::cout << "Iteration " << i << "\tbest value " << *std::min_element(std::begin(population_values), std::begin(population_values) + mu) << "\n";
             get_parent_indices();
-            // for(int i = 0; i < lambda; ++i)std::cout << i << " PTR\t" << parent_indices.at(i) << "\n\n";
             create_children_population();
-            // for(int i = mu; i < mu + lambda; ++i)
-            // {
-            //     std::cout << i << "\t" << "\n";
-            //     for(int j = 0; j < CHR_LEN; ++j) std::cout << sigmas.at(i).at(j) << " ";
-            //     std::cout << "\n";
-
-            // }
-            evaluate_population(mu, lambda + mu);
-            // std::cout << "\n\nVALUES\n";
-            // for(int i = 0; i < mu + lambda; ++i) std::cout << i << "\t" << population_values.at(i) << "\n";
+            evaluate_population(test_case, mu, lambda + mu);
             choose_new_population();
         }
 
-        int idx = std::max_element(population_values.begin(), population_values.begin() + mu) - population_values.begin();
+        int idx = std::min_element(population_values.begin(), population_values.begin() + mu) - population_values.begin();
 
         for (int i = 0; i < 32; ++i)
         {
@@ -106,14 +61,13 @@ private:
     bool          is_plus;
     f_T                 t;
     f_T                t0;
-    int max_iterations;
     std::array<std::array<f_T, CHR_LEN>, mu + lambda> population;
     std::array<std::array<f_T, CHR_LEN>, mu + lambda> sigmas;
     std::array<f_T, mu + lambda> population_values;
     std::array<f_T, mu> fitness_values;
     std::array<int, lambda> parent_indices;
     std::array<int, mu + lambda> argsort_array;
-    //          F;
+    std::function<std::vector<f_T>(const std::vector<Chromosome>&, TestCase*)> F;
 
     void initialize_sigmas()
     {
@@ -139,21 +93,19 @@ private:
         }
     }
 
-    void evaluate_population(int l_index, int r_index)
+    void evaluate_population(TestCase *test_case, int l_index, int r_index)
     {
-        std::array<Chromosome, 20> chrs;
+        std::vector<Chromosome> chrs;
+        chrs.reserve(r_index - l_index);
+
         for (int i = l_index; i < r_index; ++i)
         {
-            chrs.at(i - l_index) = Chromosome(population.at(i));
-            // f_T suma = 0;
-            // for (int j = 0; j < CHR_LEN; ++j) suma += population.at(i).at(j) * population.at(i).at(j); 
-            // population_values.at(i) = p[i - l_index];
+            chrs.push_back(Chromosome(population.at(i)));
         }
-        auto p = evaluate_function(chrs);
+
+        auto p = F(chrs, test_case);
         for (int i = l_index; i < r_index; ++i)
         {
-            f_T suma = 0;
-            // for (int j = 0; j < CHR_LEN; ++j) suma += population.at(i).at(j) * population.at(i).at(j); 
             population_values.at(i) = p[i - l_index];
         }
     }
@@ -239,10 +191,26 @@ private:
     }
 };
 
-int main(int argc, char** argv)
-{
-    std::cout << "XD\n";
-    // dlgosc chromosomu, mi, lambda, 
-    ES_solver<32, 20, 20> solver(nullptr, std::stod(argv[2]), true, std::stoi(argv[1]));
-    solver.run();
-}
+// int main(int argc, char** argv)
+// {
+//     std::cout << "XD\n";
+//     // dlgosc chromosomu, mi, lambda, 
+//     TestCase *test_case = new TestCase();
+//     test_case->SetBlocked(false);
+//     ES_solver<32, 20, 20> solver(TestCase::evaluate_function, test_case, std::stod(argv[1]), true);
+//     test_case->SetBlocked(true);
+//     // test_case->blocked = true;
+//     // solver.run(30, test_case);
+
+//     auto x = std::thread(&ES_solver<32, 20, 20>::run, &solver, 30, test_case);
+
+//     while(1) {
+//         std::cout << "Siema siema\n";
+//         std::cin.get();
+//         Settings settings;
+//         test_case->SetBlocked(false);
+//         test_case->Step(settings);
+//         test_case->SetBlocked(true);
+//     }
+//     x.join();
+// }

@@ -10,6 +10,8 @@ set (TESTBED_SOURCE_FILES
 	settings.cpp
 	test.cpp
 	test.h
+	testcase.hpp
+	testcase.cpp
 	chromosome.h
 	chromosome.cpp
 	car.h

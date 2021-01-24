@@ -10,6 +10,7 @@ public:
     Car();
     Car(const Chromosome& chromosome, b2World* world, float init_speed);
     const b2Body* GetBody() const { return m_body; }
+    void DetroyBody();
 private:
     b2Body* m_body;
     std::array<b2Body*, 8> m_wheels;

@@ -7,6 +7,8 @@ Car::Car() {
 }
 
 Car::Car(const Chromosome& chromosome, b2World* world, float init_speed) {
+    m_world = world;
+
     b2PolygonShape chassis;
     b2Vec2 vertices[8];
 
@@ -17,76 +19,78 @@ Car::Car(const Chromosome& chromosome, b2World* world, float init_speed) {
     }
     chassis.Set(vertices, 8);
 
-    b2FixtureDef bodyDef;
-    bodyDef.shape = &chassis;
-    bodyDef.density = 1.0f;
-
-    short bits = 0x0001; 
-    bodyDef.filter.groupIndex = -1;
+    b2CircleShape circle;
 
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
-    bd.position.Set(0.0f, 0.0f);
+    bd.position.Set(0.0f, 5.0f);
     m_body = world->CreateBody(&bd);
-    m_body->CreateFixture(&bodyDef);
     
+    b2FixtureDef bodyDef;
+    bodyDef.shape = &chassis;
+    bodyDef.density = 1.0f;
+    bodyDef.filter.groupIndex = -1;
+    m_body->CreateFixture(&bodyDef);
+
     b2FixtureDef fd;
     fd.filter.groupIndex = -1;
-
-    b2CircleShape circle;
     fd.shape = &circle;
     fd.density = 1.0f;
     fd.friction = 0.9f;
-   
+
     b2WheelJointDef jd;
-    b2Vec2 axis(0.0f, 1.f);
+    b2Vec2 axis(0.0f, 1.0f);
 
     float hertz = 4.0f;
     float dampingRatio = 0.7f;
     float omega = 2.0f * b2_pi * hertz;
 
+    m_wheels.fill(nullptr);
+    m_springs.fill(nullptr);
+
     for(int i = 0; i < 8; i++) {
         if(chromosome.GetVertexWhell(i)) {
             circle.m_radius = chromosome.GetVertexWhellRadius(i);
-            bd.position.Set(vertices[i].x, vertices[i].y);
-            auto& wheel{m_wheels[i]};
-            wheel = world->CreateBody(&bd);
-            wheel->CreateFixture(&fd);
+            bd.position.Set(vertices[i].x, 5 + vertices[i].y);
+            m_wheels[i] = world->CreateBody(&bd);
+            m_wheels[i]->CreateFixture(&fd);
 
-            float mass = wheel->GetMass();
+            float mass1 = m_wheels[i]->GetMass();
 
-			jd.Initialize(m_body, wheel, wheel->GetPosition(), axis);
-			jd.motorSpeed = 0.0f;
-			jd.maxMotorTorque = 20.0f;
-			jd.enableMotor = true;
-			jd.stiffness = mass * omega * omega;
-			jd.damping = 2.0f * mass * dampingRatio * omega;
-			jd.lowerTranslation = -0.25f;
-			jd.upperTranslation = 0.25f;
-			jd.enableLimit = true;
-			m_springs[i] = (b2WheelJoint*)world->CreateJoint(&jd);
+            jd.Initialize(m_body, m_wheels[i], m_wheels[i]->GetPosition(), axis);
+            jd.motorSpeed = 0.0f;
+            jd.maxMotorTorque = 20.0f;
+            jd.enableMotor = true;
+            jd.stiffness = mass1 * omega * omega;
+            jd.damping = 2.0f * mass1 * dampingRatio * omega;
+            jd.lowerTranslation = -0.25f;
+            jd.upperTranslation = 0.25f;
+            jd.enableLimit = true;
+            m_springs[i] = (b2WheelJoint*)world->CreateJoint(&jd);
+
             m_springs[i]->SetMotorSpeed(init_speed);
         }
     }
 }
 
-void Car::DetroyBody() {
+Car::~Car() {
+    m_world->DestroyBody(m_body);
+    // std::cerr << "BODY DESTROYED\n";
+
     for(auto& whell : m_wheels) {
         if(whell != nullptr) {
-            // whell->GetWorld()->DestroyBody(whell);
-            whell->SetEnabled(false);
+            m_world->DestroyBody(whell);
         }
     }
+    // std::cerr << "WHELLS DESTROYED\n";
 
-    if(m_body != nullptr) {
-        // m_body->GetWorld()->DestroyBody(m_body);
-        m_body->SetEnabled(false);
+    m_body = nullptr;
+    for(auto& whell : m_wheels) {
+        whell = nullptr;
     }
+    // std::cerr << "CHANGED TO NULLPTR\n";
 
-    // for(auto& spring : m_springs) {
-    //     if(spring != nullptr) {
-    //         // spring->GetBodyA()->GetWorld()->DestroyJoint(spring);
-    //         delete spring;
-    //     }
-    // }
+    for(auto& spring : m_springs) {
+        spring = nullptr;
+    }
 }

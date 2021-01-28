@@ -16,16 +16,18 @@ StraightLine::StraightLine()
 
 	es_solver = new ES_solver<32, POPULATION_SIZE, POPULATION_SIZE>(TestCase::evaluate_function, testCase, 1, true);
 
-	thread = std::thread(&ES_solver<32, POPULATION_SIZE, POPULATION_SIZE>::run, &*es_solver, 30, blockedTestCase);
+	thread = std::thread(&ES_solver<32, POPULATION_SIZE, POPULATION_SIZE>::run, &*es_solver, 100, blockedTestCase);
 }
 
 void StraightLine::Step(Settings& settings)
-{
-	blockedTestCase->SetBlocked(false);
+{	
+	blockedTestCase->mutex.lock();
+	// blockedTestCase->SetBlocked(false);
 	blockedTestCase->Step(settings);
-	blockedTestCase->SetBlocked(true);
-	std::lock_guard<std::mutex> lock(blockedTestCase->mutex);
+	// blockedTestCase->SetBlocked(true);
 	Test::Step(settings);
+	blockedTestCase->DeleteCars();
+	blockedTestCase->mutex.unlock();
 }
 
 Test* StraightLine::Create()

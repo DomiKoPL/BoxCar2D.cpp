@@ -30,9 +30,11 @@ public:
     static std::vector<float> evaluate_function(const std::vector<Chromosome>& chromosomes, TestCase *test_case);
 
     void CreateCars(const std::vector<Chromosome>& chromosomes);
+    void DeleteCars();
 
     float m_mapWidth;
     std::vector<Car*> m_cars;
+    std::vector<Car*> m_cars_to_delete;
     bool blocked = true;
     bool draw = false;
 

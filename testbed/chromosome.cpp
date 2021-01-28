@@ -27,13 +27,20 @@ float Chromosome::GetVertexAngle(int idx) const {
 }
 
 float Chromosome::GetVertexMagnitude(int idx) const {
-    return genes.at(idx * 4 + 1);
+    float r{genes.at(idx * 4 + 1)};
+    r = std::min(r, 5.f);
+    return r;
 }
 
-float Chromosome::GetVertexWhell(int idx) const {
+bool Chromosome::GetVertexWhell(int idx) const {
+    if(GetVertexWhellRadius(idx) < 0.1f) {
+        return false;
+    }
     return genes.at(idx * 4 + 2) <= 0.3f;
 }
 
 float Chromosome::GetVertexWhellRadius(int idx) const {
+    float r{genes.at(idx * 4 + 1)};
+    r = std::min(r, 1.5f);
     return genes.at(idx * 4 + 3);
 }

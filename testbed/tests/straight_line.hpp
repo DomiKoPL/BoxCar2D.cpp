@@ -9,7 +9,7 @@
 #include "testcase.hpp"
 #include "es_solver.cpp"
 
-constexpr int POPULATION_SIZE{20};
+constexpr int POPULATION_SIZE{25};
 
 class StraightLine : public Test
 {

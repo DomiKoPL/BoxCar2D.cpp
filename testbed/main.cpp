@@ -372,6 +372,8 @@ static void UpdateUI()
 				
 				ImGui::Separator();
 
+				ImGui::Checkbox("Show best", &s_settings.m_showBest);
+				ImGui::Checkbox("Debug info ", &s_settings.m_debugInfo);
 				ImGui::Checkbox("Sleep", &s_settings.m_enableSleep);
 				ImGui::Checkbox("Warm Starting", &s_settings.m_enableWarmStarting);
 				ImGui::Checkbox("Time of Impact", &s_settings.m_enableContinuous);

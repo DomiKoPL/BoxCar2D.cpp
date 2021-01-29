@@ -53,6 +53,8 @@ struct Settings
 		m_enableSleep = true;
 		m_pause = false;
 		m_singleStep = false;
+		m_showBest = false;
+		m_debugInfo = false;
 	}
 
 	void Save();
@@ -80,4 +82,6 @@ struct Settings
 	bool m_enableSleep;
 	bool m_pause;
 	bool m_singleStep;
+	bool m_showBest;
+	bool m_debugInfo;
 };

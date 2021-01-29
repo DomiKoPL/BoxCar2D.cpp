@@ -4,13 +4,14 @@
 #include "test.h"
 #include "chromosome.h"
 #include <array>
-#include <cassert>
 
 class Car {
 public:
     Car();
-    Car(const Chromosome& chromosome, b2World* world, float init_speed);
+    Car(Chromosome& chromosome, b2World* world, float init_speed);
     const b2Body* GetBody() const { return m_body; }
+    const b2Body* GetWheel(int idx) const { return m_wheels.at(idx); }
+    const b2WheelJoint* GetWheelJoint(int idx) const { return m_springs.at(idx); }
     ~Car();
 private:
 	b2World* m_world;

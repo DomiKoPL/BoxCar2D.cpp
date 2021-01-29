@@ -2,7 +2,7 @@
 #include "./test.h"
 #include "./settings.h"
 #include "chromosome.h"
-#include "testcase.hpp"
+#include "tests/environments/car_environment.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -18,40 +18,45 @@ class ES_solver
 {
 public:
     
-    ES_solver(std::function<std::vector<f_T>(const std::vector<Chromosome>&, TestCase*)> F, TestCase *test_case, f_T K, bool is_es_plus)
-        : is_plus{is_es_plus}, F{F}
+    ES_solver(CarEnvironment *car_environment, f_T K, bool is_es_plus)
+        : is_plus{is_es_plus}
     {
         static_assert(mu <= lambda);
         t  = K / std::sqrt(2.0 * CHR_LEN);
         t0 = K / std::sqrt(2.0 * std::sqrt(CHR_LEN));
         gen = std::mt19937(rd());
         
-        for(int i = 0; i < mu ; ++i) std::cout << i << "\t" << population_values.at(i) << "\n";
         initialize_sigmas();
         initialize_population();
-        evaluate_population(test_case, 0, mu);
+        evaluate_population(car_environment, 0, mu);
+        for(int i = 0; i < mu ; ++i) std::cout << i << "\t" << population_values.at(i) << "\n";
         std::cout << "\tbest value " << *std::min_element(std::begin(population_values), std::begin(population_values) + mu) << "\n";
     }
 
-    void run(int iterations, TestCase *test_case)
+    void run(int iterations, CarEnvironment *car_environment)
     {
         for(int i = 0; i < iterations; ++i)
         {
-            std::cout << "Iteration " << i << "\tbest value " << *std::min_element(std::begin(population_values), std::begin(population_values) + mu) << "\n";
+            std::cout << "Iteration " << m_iterations_done++ << "\tbest value " << *std::min_element(std::begin(population_values), std::begin(population_values) + mu) << "\n";
             get_parent_indices();
             create_children_population();
-            evaluate_population(test_case, mu, lambda + mu);
+            evaluate_population(car_environment, mu, lambda + mu);
             choose_new_population();
         }
 
         int idx = std::min_element(population_values.begin(), population_values.begin() + mu) - population_values.begin();
 
+        std::cout << "{";
+        for(auto i : population.at(idx)) {
+            std::cout << i << ",";
+        }
+        std::cout << "}\n";
         for (int i = 0; i < 32; ++i)
         {
-            std::cout << "Gene " << i << "\t" << population.at(idx).at(i) << "\n"; 
+            // std::cout << "Gene " << i << "\t" << population.at(idx).at(i) << "\n"; 
         }
 
-        for(int i = 0; i < mu; ++i) std::cout << i << "\t" << population_values[i] << "\n";
+        // for(int i = 0; i < mu; ++i) std::cout << i << "\t" << population_values[i] << "\n";
     }
 
 
@@ -67,7 +72,7 @@ private:
     std::array<f_T, mu> fitness_values;
     std::array<int, lambda> parent_indices;
     std::array<int, mu + lambda> argsort_array;
-    std::function<std::vector<f_T>(const std::vector<Chromosome>&, TestCase*)> F;
+    int m_iterations_done;
 
     void initialize_sigmas()
     {
@@ -93,7 +98,7 @@ private:
         }
     }
 
-    void evaluate_population(TestCase *test_case, int l_index, int r_index)
+    void evaluate_population(CarEnvironment *car_environment, int l_index, int r_index)
     {
         std::vector<Chromosome> chrs;
         chrs.reserve(r_index - l_index);
@@ -103,7 +108,7 @@ private:
             chrs.push_back(Chromosome(population.at(i)));
         }
 
-        auto p = F(chrs, test_case);
+        auto p = car_environment->evaluate_function(chrs);
         for (int i = l_index; i < r_index; ++i)
         {
             population_values.at(i) = p[i - l_index];

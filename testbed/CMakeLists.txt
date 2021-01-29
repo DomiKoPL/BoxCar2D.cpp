@@ -10,15 +10,27 @@ set (TESTBED_SOURCE_FILES
 	settings.cpp
 	test.cpp
 	test.h
-	testcase.hpp
-	testcase.cpp
 	chromosome.h
 	chromosome.cpp
 	car.h
 	car.cpp
 	es_solver.cpp
-	tests/straight_line.hpp
-	tests/straight_line.cpp
+	tests/es_straight_line.hpp
+	tests/es_straight_line.cpp
+	tests/es_small_hills.hpp
+	tests/es_small_hills.cpp
+	tests/es_mountains.hpp
+	tests/es_mountains.cpp
+	tests/f1_straight_line.hpp
+	tests/f1_straight_line.cpp
+	tests/environments/car_environment.hpp
+	tests/environments/car_environment.cpp
+	tests/environments/small_hills.hpp
+	tests/environments/small_hills.cpp
+	tests/environments/straight_line.hpp
+	tests/environments/straight_line.cpp
+	tests/environments/mountains.hpp
+	tests/environments/mountains.cpp
 )
 
 add_executable(testbed ${TESTBED_SOURCE_FILES})

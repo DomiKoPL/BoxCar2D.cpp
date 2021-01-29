@@ -76,7 +76,9 @@ void Settings::Save()
 	fprintf(file, "  \"enableWarmStarting\": %s,\n", m_enableWarmStarting ? "true" : "false");
 	fprintf(file, "  \"enableContinuous\": %s,\n", m_enableContinuous ? "true" : "false");
 	fprintf(file, "  \"enableSubStepping\": %s,\n", m_enableSubStepping ? "true" : "false");
-	fprintf(file, "  \"enableSleep\": %s\n", m_enableSleep ? "true" : "false");
+	fprintf(file, "  \"enableSleep\": %s,\n", m_enableSleep ? "true" : "false");
+	fprintf(file, "  \"showBest\": %s,\n", m_showBest ? "true" : "false");
+	fprintf(file, "  \"debugInfo\": %s\n", m_debugInfo ? "true" : "false");
 	fprintf(file, "}\n");
 	fclose(file);
 }
@@ -93,11 +95,15 @@ void Settings::Load()
 	{
 		return;
 	}
+
 	const sajson::document& document = sajson::parse(sajson::dynamic_allocation(), sajson::mutable_string_view(size, data));
 	if (document.is_valid() == false)
 	{
+		std::cout << "INVALID\n";
 		return;
 	}
+
+	std::cout << "LOADING SETTING\n";
 
 	sajson::value root = document.get_root();
 	int fieldCount = int(root.get_length());
@@ -169,6 +175,45 @@ void Settings::Load()
 			else if (fieldValue.get_type() == sajson::TYPE_TRUE)
 			{
 				m_drawShapes = true;
+			}
+			continue;
+		}
+
+		if (strncmp(fieldName.data(), "drawJoints", fieldName.length()) == 0)
+		{
+			if (fieldValue.get_type() == sajson::TYPE_FALSE)
+			{
+				m_drawJoints = false;
+			}
+			else if (fieldValue.get_type() == sajson::TYPE_TRUE)
+			{
+				m_drawJoints = true;
+			}
+			continue;
+		}
+
+		if (strncmp(fieldName.data(), "showBest", fieldName.length()) == 0)
+		{
+			if (fieldValue.get_type() == sajson::TYPE_FALSE)
+			{
+				m_showBest = false;
+			}
+			else if (fieldValue.get_type() == sajson::TYPE_TRUE)
+			{
+				m_showBest = true;
+			}
+			continue;
+		}
+
+		if (strncmp(fieldName.data(), "debugInfo", fieldName.length()) == 0)
+		{
+			if (fieldValue.get_type() == sajson::TYPE_FALSE)
+			{
+				m_debugInfo = false;
+			}
+			else if (fieldValue.get_type() == sajson::TYPE_TRUE)
+			{
+				m_debugInfo = true;
 			}
 			continue;
 		}

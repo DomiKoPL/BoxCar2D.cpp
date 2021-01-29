@@ -15,10 +15,10 @@ struct Chromosome {
     Chromosome();
     Chromosome(std::array<float, 32> chromosome);
     void Random();
-    float GetVertexAngle(int idx) const;
-    float GetVertexMagnitude(int idx) const;
-    bool GetVertexWhell(int idx) const;
-    float GetVertexWhellRadius(int idx) const;
+    float GetVertexAngle(int idx);
+    float GetVertexMagnitude(int idx);
+    bool GetVertexWhell(int idx);
+    float GetVertexWhellRadius(int idx);
 };
 
 #endif

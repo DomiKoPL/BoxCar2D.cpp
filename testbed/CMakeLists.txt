@@ -17,6 +17,8 @@ set (TESTBED_SOURCE_FILES
 	es_solver.cpp
 	tests/es_straight_line.hpp
 	tests/es_straight_line.cpp
+	tests/es_random_track.hpp
+	tests/es_random_track.cpp
 	tests/es_small_hills.hpp
 	tests/es_small_hills.cpp
 	tests/es_mountains.hpp
@@ -31,6 +33,8 @@ set (TESTBED_SOURCE_FILES
 	tests/environments/straight_line.cpp
 	tests/environments/mountains.hpp
 	tests/environments/mountains.cpp
+	tests/environments/random_track.hpp
+	tests/environments/random_track.cpp
 )
 
 add_executable(testbed ${TESTBED_SOURCE_FILES})

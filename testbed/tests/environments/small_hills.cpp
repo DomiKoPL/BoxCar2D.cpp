@@ -46,7 +46,7 @@ std::vector<float> SmallHills::evaluate_function(std::vector<Chromosome>& chromo
 
     Lock();
 
-    CreateCars(chromosomes);
+    CreateCars(chromosomes, 50);
 
     if(not m_blocked) 
     {

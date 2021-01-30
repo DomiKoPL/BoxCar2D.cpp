@@ -49,7 +49,7 @@ std::vector<float> Mountains::evaluate_function(std::vector<Chromosome>& chromos
 
     Lock();
 
-    CreateCars(chromosomes);
+    CreateCars(chromosomes, 50);
 
     if(not m_blocked) 
     {

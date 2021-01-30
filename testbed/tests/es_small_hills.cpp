@@ -14,7 +14,7 @@ ESSmallHills::ESSmallHills()
 	blocked_environment = new SmallHills(true);	
 
 	thread = std::thread([&]() {
-		es_solver = new ES_solver<32, POPULATION_SIZE, POPULATION_SIZE>(blocked_environment, 2, true);
+		es_solver = new ES_solver<32, POPULATION_SIZE, POPULATION_SIZE>(blocked_environment, 100, true);
 		while(1) {
 			es_solver->run(9, environment);
 			es_solver->run(1, blocked_environment);

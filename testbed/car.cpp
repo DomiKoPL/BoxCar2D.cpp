@@ -9,15 +9,6 @@ Car::Car() {
 Car::Car(Chromosome& chromosome, b2World* world, float init_speed) {
     m_world = world;
 
-    // for(int i = 0; i < 8; i++) {
-    //     float r = chromosome.GetVertexMagnitude(i);
-    //     float angle = chromosome.GetVertexAngle(i);
-    //     float x = cos(angle) * r;
-    //     float y = sin(angle) * r;
-    //     std::cerr << x << " " << y << "\t";
-    //     std::cerr << chromosome.GetVertexWhell(i) << " r=" << chromosome.GetVertexWhellRadius(i) << "\n";
-    // }
-
     b2PolygonShape chassis;
     b2Vec2 vertices[8];
 
@@ -28,17 +19,7 @@ Car::Car(Chromosome& chromosome, b2World* world, float init_speed) {
         vertices[i].Set(cos(angle) * r, sin(angle) * r);
     }
     chassis.Set(vertices, 8);
-
-    for(int i = 0; i < 8; i++) 
-    {
-        float r = chromosome.GetVertexMagnitude(i);
-        float angle = chromosome.GetVertexAngle(i);
-        float x = cos(angle) * r;
-        float y = sin(angle) * r;
-        assert(std::abs(x - vertices[i].x) <= 0.0001);
-        assert(std::abs(y - vertices[i].y) <= 0.0001);
-    }
-
+    
     float min_y = vertices[0].y;
     for(int i = 1; i < 8; i++) {
         min_y = std::min(min_y, vertices[i].y);
@@ -64,16 +45,18 @@ Car::Car(Chromosome& chromosome, b2World* world, float init_speed) {
     
     b2FixtureDef bodyDef;
     bodyDef.shape = &chassis;
-    bodyDef.friction = 5.0f;
-    bodyDef.density = 1.0f;
+    bodyDef.density = 30.0; //TODO: into chromosome
+    bodyDef.restitution = 0.2;
+    bodyDef.friction = 10.0;
     bodyDef.filter.groupIndex = -1;
     m_body->CreateFixture(&bodyDef);
 
     b2FixtureDef fd;
-    fd.filter.groupIndex = -1;
     fd.shape = &circle;
-    fd.density = 1.f;
-    fd.friction = 0.9f;
+    fd.density = 100.f; // TODO: into chromosome
+    fd.restitution = 0.2;
+    fd.friction = 1.f;
+    fd.filter.groupIndex = -1;
 
     b2WheelJointDef jd;
     b2Vec2 axis(0.0f, 1.0f);
@@ -85,24 +68,33 @@ Car::Car(Chromosome& chromosome, b2World* world, float init_speed) {
     m_wheels.fill(nullptr);
     m_springs.fill(nullptr);
 
-    for(int i = 0; i < 8; i++) 
-    {
-        if(chromosome.GetVertexWhell(i)) 
-        {
+    float car_mass = m_body->GetMass();
+    
+    for(int i = 0; i < 8; i++) {
+        if(chromosome.GetVertexWhell(i)) {
             circle.m_radius = chromosome.GetVertexWhellRadius(i);
             bd.position.Set(vertices[i].x, vertices[i].y - min_y);
 
             m_wheels[i] = world->CreateBody(&bd);
             m_wheels[i]->CreateFixture(&fd);
-            // m_wheels[i]->SetAngularDamping(0.7f);
-            float mass1 = m_wheels[i]->GetMass();
 
+            car_mass += m_wheels[i]->GetMass();
+        }
+    }
+
+    for(int i = 0; i < 8; i++) 
+    {
+        if(chromosome.GetVertexWhell(i)) 
+        {
+            float torque = car_mass * -m_world->GetGravity().y / chromosome.GetVertexWhellRadius(i);
+
+            float mass = m_wheels[i]->GetMass();
             jd.Initialize(m_body, m_wheels[i], m_wheels[i]->GetPosition(), axis);
-            jd.motorSpeed = init_speed;
-            jd.maxMotorTorque = 20.f;
+            jd.motorSpeed = -init_speed;
+            jd.maxMotorTorque = torque;
             jd.enableMotor = true;
-            jd.stiffness = mass1 * omega * omega;
-            jd.damping = 2.0f * mass1 * dampingRatio * omega;
+            jd.stiffness = mass * omega * omega;
+            jd.damping = 2.0f * mass * dampingRatio * omega;
             jd.lowerTranslation = -0.25f;
             jd.upperTranslation = 0.25f;
             jd.enableLimit = true;

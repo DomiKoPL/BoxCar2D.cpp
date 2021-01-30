@@ -3,15 +3,16 @@
 #include "car.h"
 #include "chromosome.h"
 #include <algorithm>
-#include "es_straight_line.hpp"
+#include "es_random_track.hpp"
 #include <iostream>
 #include "settings.h"
 
-ESStraightLine::ESStraightLine()
+ESRandomTrack::ESRandomTrack()
 {
 	srand(time(0));
-	environment = new StraightLine(false);
-	blocked_environment = new StraightLine(true);	
+    int seed = rand();
+	environment = new RandomTrack(false, seed);
+	blocked_environment = new RandomTrack(true, seed);	
 
 	thread = std::thread([&]() {
 		es_solver = new ES_solver<32, POPULATION_SIZE, POPULATION_SIZE>(blocked_environment, 1, true);
@@ -22,7 +23,7 @@ ESStraightLine::ESStraightLine()
 	});
 }
 
-void ESStraightLine::Step(Settings& settings)
+void ESRandomTrack::Step(Settings& settings)
 {	
 	blocked_environment->Lock();
 
@@ -33,13 +34,13 @@ void ESStraightLine::Step(Settings& settings)
 	blocked_environment->Unlock();
 }
 
-Test* ESStraightLine::Create()
+Test* ESRandomTrack::Create()
 {
-	return new ESStraightLine;
+	return new ESRandomTrack;
 }
 
-ESStraightLine::~ESStraightLine() {
+ESRandomTrack::~ESRandomTrack() {
 	thread.detach();
 }
 
-static int testIndex = RegisterTest("StraightLine", "ESStraightLine", ESStraightLine::Create);
+static int testIndex = RegisterTest("RandomTrack", "ES", ESRandomTrack::Create);

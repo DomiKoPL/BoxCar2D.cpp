@@ -27,7 +27,7 @@ public:
 
     virtual std::vector<float> evaluate_function(std::vector<Chromosome>& chromosomes) = 0;
     
-    void CreateCars(std::vector<Chromosome>& chromosomes);
+    void CreateCars(std::vector<Chromosome>& chromosomes, float init_speed);
     void DeleteCars();
 
 	static Test* Create();

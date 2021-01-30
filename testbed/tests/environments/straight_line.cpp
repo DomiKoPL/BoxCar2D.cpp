@@ -4,7 +4,7 @@ StraightLine::StraightLine(bool blocked) : CarEnvironment(blocked) {
     m_map_width = 1000.f;
 
     b2Vec2 gravity;
-	gravity.Set(0.0f, -20.0f);
+	gravity.Set(0.0f, -10.0f);
     m_world->SetGravity(gravity);
 
     b2BodyDef groundBody;
@@ -16,8 +16,7 @@ StraightLine::StraightLine(bool blocked) : CarEnvironment(blocked) {
 
     b2FixtureDef fd;
     fd.shape = &shape;
-    fd.density = 0.0f;
-    fd.friction = 0.6f;
+    fd.friction = 0.5f;
 
     shape.SetTwoSided(b2Vec2(-20.0f, 0.0f), b2Vec2(m_map_width + 20.f, 0.0f));
     ground->CreateFixture(&fd);
@@ -32,7 +31,7 @@ std::vector<float> StraightLine::evaluate_function(std::vector<Chromosome>& chro
 
     Lock();
 
-    CreateCars(chromosomes);
+    CreateCars(chromosomes, 50);
 
     if(not m_blocked) 
     {

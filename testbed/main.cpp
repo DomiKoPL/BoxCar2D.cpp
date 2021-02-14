@@ -226,6 +226,10 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 			s_settings.m_pause = !s_settings.m_pause;
 			break;
 
+		case GLFW_KEY_N:
+			s_settings.m_nextPopulation = !s_settings.m_nextPopulation;
+			break;
+
 		case GLFW_KEY_LEFT_BRACKET:
 			// Switch to previous test
 			--s_testSelection;
@@ -396,6 +400,11 @@ static void UpdateUI()
 				if (ImGui::Button("Pause (P)", button_sz))
 				{
 					s_settings.m_pause = !s_settings.m_pause;
+				}
+
+				if (ImGui::Button("Next population (N)", button_sz))
+				{
+					s_settings.m_nextPopulation = !s_settings.m_nextPopulation;
 				}
 
 				if (ImGui::Button("Single Step (O)", button_sz))

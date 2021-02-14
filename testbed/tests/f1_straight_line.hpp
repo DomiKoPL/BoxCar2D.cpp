@@ -7,6 +7,7 @@
 #include "chromosome.h"
 #include <algorithm>
 #include "environments/straight_line.hpp"
+#include <pthread.h>
 
 class F1StraightLine : public Test
 {
@@ -19,8 +20,9 @@ public:
 
     ~F1StraightLine();
 
-    std::thread thread;
     StraightLine *blocked_environment;
+    
+    pthread_t pthread;
 };
 
 #endif

@@ -13,13 +13,16 @@ ESMountains::ESMountains()
 	environment = new Mountains(false);
 	blocked_environment = new Mountains(true);	
 
-	thread = std::thread([&]() {
-		es_solver = new ES_solver<32, POPULATION_SIZE, POPULATION_SIZE>(blocked_environment, 2, true);
+	std::thread thread = std::thread([&]() {
+		es_solver = new ES_solver<32, POPULATION_SIZE, POPULATION_SIZE>(blocked_environment, 1, true);
 		while(1) {
-			es_solver->run(9, environment);
+			es_solver->run(4, environment);
 			es_solver->run(1, blocked_environment);
 		}
 	});
+
+	pthread = thread.native_handle();
+	thread.detach();
 }
 
 void ESMountains::Step(Settings& settings)
@@ -39,7 +42,10 @@ Test* ESMountains::Create()
 }
 
 ESMountains::~ESMountains() {
-	thread.detach();
+	pthread_cancel(pthread);
+	
+	delete environment;
+	delete blocked_environment;
 }
 
-static int testIndex = RegisterTest("Mountains", "ESMountains", ESMountains::Create);
+// static int testIndex = RegisterTest("Mountains", "ESMountains", ESMountains::Create);

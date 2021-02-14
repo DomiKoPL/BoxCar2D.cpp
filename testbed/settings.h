@@ -55,6 +55,7 @@ struct Settings
 		m_singleStep = false;
 		m_showBest = false;
 		m_debugInfo = false;
+		m_nextPopulation = false;
 	}
 
 	void Save();
@@ -84,4 +85,5 @@ struct Settings
 	bool m_singleStep;
 	bool m_showBest;
 	bool m_debugInfo;
+	bool m_nextPopulation;
 };

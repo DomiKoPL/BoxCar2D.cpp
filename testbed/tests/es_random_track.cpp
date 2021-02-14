@@ -14,13 +14,21 @@ ESRandomTrack::ESRandomTrack()
 	environment = new RandomTrack(false, seed);
 	blocked_environment = new RandomTrack(true, seed);	
 
-	thread = std::thread([&]() {
+	std::thread thread = std::thread([&]() {
 		es_solver = new ES_solver<32, POPULATION_SIZE, POPULATION_SIZE>(blocked_environment, 1, true);
 		while(1) {
-			es_solver->run(4, environment);
-			es_solver->run(1, blocked_environment);
+			// es_solver->run(4, environment);
+			try {
+				es_solver->run(100, blocked_environment);
+			} catch(std::exception e) {
+				std::cerr << "GOWNO\n";
+				std::cerr << e.what() << "\n";
+			}
 		}
 	});
+
+	pthread = thread.native_handle();
+	thread.detach();
 }
 
 void ESRandomTrack::Step(Settings& settings)
@@ -40,7 +48,10 @@ Test* ESRandomTrack::Create()
 }
 
 ESRandomTrack::~ESRandomTrack() {
-	thread.detach();
+	pthread_cancel(pthread);
+	
+	delete environment;
+	delete blocked_environment;
 }
 
 static int testIndex = RegisterTest("RandomTrack", "ES", ESRandomTrack::Create);

@@ -30,7 +30,7 @@ float Chromosome::GetVertexAngle(int idx)
 float Chromosome::GetVertexMagnitude(int idx) 
 {
     float& r{genes.at(idx * 4 + 1)};
-    r = std::min(std::abs(r), 20.f);
+    r = std::clamp(std::abs(r), 0.5f, 20.f);
     return r;
 }
 

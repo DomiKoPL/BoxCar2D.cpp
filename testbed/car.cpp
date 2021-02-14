@@ -8,6 +8,10 @@ Car::Car() {
 
 Car::Car(Chromosome& chromosome, b2World* world, float init_speed) {
     m_world = world;
+    
+    m_done = false;
+    prev_step_count = -1;
+    best_x = -1e9;
 
     b2PolygonShape chassis;
     b2Vec2 vertices[8];
@@ -69,22 +73,31 @@ Car::Car(Chromosome& chromosome, b2World* world, float init_speed) {
     m_springs.fill(nullptr);
 
     float car_mass = m_body->GetMass();
-    
+
+    int whells_cnt = 0;
     for(int i = 0; i < 8; i++) {
         if(chromosome.GetVertexWhell(i)) {
-            circle.m_radius = chromosome.GetVertexWhellRadius(i);
-            bd.position.Set(vertices[i].x, vertices[i].y - min_y);
+            whells_cnt++;
+        }
+    }
 
-            m_wheels[i] = world->CreateBody(&bd);
-            m_wheels[i]->CreateFixture(&fd);
+    if(whells_cnt >= 2) {
+        for(int i = 0; i < 8; i++) {
+            if(chromosome.GetVertexWhell(i)) {
+                circle.m_radius = chromosome.GetVertexWhellRadius(i);
+                bd.position.Set(vertices[i].x, vertices[i].y - min_y);
 
-            car_mass += m_wheels[i]->GetMass();
+                m_wheels[i] = world->CreateBody(&bd);
+                m_wheels[i]->CreateFixture(&fd);
+
+                car_mass += m_wheels[i]->GetMass();
+            }
         }
     }
 
     for(int i = 0; i < 8; i++) 
     {
-        if(chromosome.GetVertexWhell(i)) 
+        if(m_wheels[i] != nullptr) 
         {
             float torque = car_mass * -m_world->GetGravity().y / chromosome.GetVertexWhellRadius(i);
 
@@ -101,6 +114,41 @@ Car::Car(Chromosome& chromosome, b2World* world, float init_speed) {
             m_springs[i] = (b2WheelJoint*)world->CreateJoint(&jd);
         }
     }
+}
+
+void Car::update(int step_count) {
+    if(m_done) return;
+
+    float x = m_body->GetPosition().x;
+    // std::cerr << "DONE " << x << " " << best_x << " " << step_count << " " << prev_step_count << "\n";
+    float delta_x = std::max(5.f, 20.f - step_count / 60.f);
+
+    if(prev_step_count >= 0) {
+        if(x < best_x - delta_x) {
+            m_done = true;
+        }
+
+        if(x <= best_x + 10.f and step_count - prev_step_count > 3 * 60) {
+            m_done = true;
+        }
+    }
+    
+    if(prev_step_count == -1 or best_x < x) {
+        best_x = x;
+        prev_step_count = step_count;
+    }
+}
+
+bool Car::is_done() const {
+    return m_done;
+}
+
+void Car::set_done(bool done) {
+    m_done = done;
+}
+
+float Car::get_best_x() const {
+    return best_x;
 }
 
 Car::~Car() 

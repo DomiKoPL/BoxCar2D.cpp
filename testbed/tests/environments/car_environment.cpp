@@ -4,7 +4,7 @@
 
 CarEnvironment::CarEnvironment(bool blocked) : m_blocked{blocked} 
 {
-    
+
 };
 
 void CarEnvironment::Step(Settings& settings)
@@ -52,6 +52,10 @@ void CarEnvironment::Step(Settings& settings)
             auto best_car = *std::max_element(m_cars.begin(), m_cars.end(), [&](auto& a, auto& b) {
                 return a->GetBody()->GetPosition().x < b->GetBody()->GetPosition().x;
             });
+
+            std::string done_string =   "% DONE  \t= " + std::to_string(m_cars_done * 100.f / m_cars.size());
+            g_debugDraw.DrawString(5, m_textLine, done_string.c_str());
+            m_textLine += m_textIncrement;
             
             std::string x_string =   "X  \t= " + std::to_string(best_car->GetBody()->GetPosition().x);
             g_debugDraw.DrawString(5, m_textLine, x_string.c_str());
@@ -102,6 +106,22 @@ void CarEnvironment::Step(Settings& settings)
     if (timeStep > 0.0f)
     {
         ++m_stepCount;
+    }
+
+    if(m_cars_done < m_cars.size()) {
+        m_cars_done = 0;
+        for(auto& car : m_cars) {
+            car->update(m_stepCount);
+            if(car->GetBody()->GetPosition().x >= m_map_width) {
+                car->set_done(true);
+            }
+            m_cars_done += car->is_done();
+        }
+    }
+
+    if(settings.m_nextPopulation) {
+        m_cars_done = m_cars.size();
+        settings.m_nextPopulation = false;
     }
 
     if(m_blocked) {
@@ -240,6 +260,7 @@ Test* CarEnvironment::Create()
 void CarEnvironment::CreateCars(std::vector<Chromosome>& chromosomes, float init_speed)
 {
     m_stepCount = 0;
+    m_cars_done = 0;
     
     for(auto& car : m_cars) 
     {
@@ -267,4 +288,13 @@ void CarEnvironment::DeleteCars()
     }
 
     m_cars_to_delete.clear();
+}
+
+CarEnvironment::~CarEnvironment() {
+    DeleteCars();
+    
+    for(auto& car : m_cars) 
+    {
+        delete car;
+    }
 }

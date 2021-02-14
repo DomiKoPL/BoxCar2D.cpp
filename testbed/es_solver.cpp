@@ -45,6 +45,8 @@ public:
         }
 
         int idx = std::min_element(population_values.begin(), population_values.begin() + mu) - population_values.begin();
+        
+        assert(idx < population.size());
 
         std::cout << "{";
         for(auto i : population.at(idx)) {
@@ -104,13 +106,17 @@ private:
         chrs.reserve(r_index - l_index);
 
         for (int i = l_index; i < r_index; ++i)
-        {
+        {   
+            assert(i >= 0);
+            assert(i < population.size());
             chrs.push_back(Chromosome(population.at(i)));
         }
 
         auto p = car_environment->evaluate_function(chrs);
         for (int i = l_index; i < r_index; ++i)
         {
+            assert(i >= 0);
+            assert(i < population_values.size());
             population_values.at(i) = p[i - l_index];
         }
     }

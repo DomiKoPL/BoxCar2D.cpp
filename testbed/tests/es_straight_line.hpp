@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "environments/straight_line.hpp"
 #include "es_solver.cpp"
+#include <pthread.h>
 
 class ESStraightLine : public Test
 {
@@ -29,7 +30,7 @@ public:
     StraightLine *blocked_environment;
 
     ES_solver<32, POPULATION_SIZE, POPULATION_SIZE> *es_solver;
-    std::thread thread;
+    pthread_t pthread;
 
     ~ESStraightLine();
 };

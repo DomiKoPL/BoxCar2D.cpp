@@ -12,9 +12,15 @@ public:
     const b2Body* GetBody() const { return m_body; }
     const b2Body* GetWheel(int idx) const { return m_wheels.at(idx); }
     const b2WheelJoint* GetWheelJoint(int idx) const { return m_springs.at(idx); }
+    void update(int step_count);
+    bool is_done() const;
+    void set_done(bool done);
+    float get_best_x() const;
     ~Car();
 private:
-    float m_score;
+    float best_x;
+    int prev_step_count;
+    bool m_done;
 	b2World* m_world;
     b2Body* m_body;
 	std::array<b2Body*, 8> m_wheels;

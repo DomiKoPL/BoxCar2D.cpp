@@ -35,10 +35,10 @@ RandomTrack::RandomTrack(bool blocked, int seed) : CarEnvironment(blocked) {
     ground->CreateFixture(&fd);
     float cur_angle = 0.f;
 
-    const float max_angle_change = b2_pi / 4;
-    const float max_angle = b2_pi / 4;
-    const float min_width = 0.5f;
-    const float max_width = 5.f;
+    const float max_angle_change = b2_pi / 2.5;
+    const float max_angle = b2_pi / 5;
+    const float min_width = 3.0f;
+    const float max_width = 10.f;
 
     for(int i = 0; i < number_of_points; i++) {
         float width = random(gen, min_width, max_width);
@@ -67,7 +67,7 @@ std::vector<float> RandomTrack::evaluate_function(std::vector<Chromosome>& chrom
 
     Lock();
 
-    CreateCars(chromosomes, 20);
+    CreateCars(chromosomes, 15.0);
 
     if(not m_blocked) 
     {
@@ -79,7 +79,7 @@ std::vector<float> RandomTrack::evaluate_function(std::vector<Chromosome>& chrom
     auto stepsBefore = m_stepCount;
     if(m_blocked) 
     {
-        while(m_stepCount - stepsBefore < 60 * 20) 
+        while(m_cars_done < m_cars.size() or m_stepCount > 60 * 60) 
         {
             assert(m_stepCount >= stepsBefore);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -87,7 +87,7 @@ std::vector<float> RandomTrack::evaluate_function(std::vector<Chromosome>& chrom
     } 
     else 
     {
-        while(m_stepCount - stepsBefore < 60 * 20) 
+        while(m_cars_done < m_cars.size() or m_stepCount > 60 * 60) 
         {
             assert(m_stepCount >= stepsBefore);
             Step(s_settings);
@@ -99,7 +99,8 @@ std::vector<float> RandomTrack::evaluate_function(std::vector<Chromosome>& chrom
 
     for(int i = 0; i < chromosomes.size(); ++i)
     {
-        dists.push_back(m_map_width - m_cars.at(i)->GetBody()->GetPosition().x);
+        assert(m_cars.size() > i);
+        dists.push_back(m_map_width - m_cars.at(i)->get_best_x());
     }
 
     for(auto& car : m_cars) 

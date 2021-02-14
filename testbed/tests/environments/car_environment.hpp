@@ -32,8 +32,11 @@ public:
 
 	static Test* Create();
 
+    ~CarEnvironment();
+
 protected:
     float m_map_width;
+    int m_cars_done;
     std::vector<Car*> m_cars;
     std::vector<Car*> m_cars_to_delete;
     bool m_blocked;

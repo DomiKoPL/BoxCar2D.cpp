@@ -13,13 +13,16 @@ ESStraightLine::ESStraightLine()
 	environment = new StraightLine(false);
 	blocked_environment = new StraightLine(true);	
 
-	thread = std::thread([&]() {
+	std::thread thread = std::thread([&]() {
 		es_solver = new ES_solver<32, POPULATION_SIZE, POPULATION_SIZE>(blocked_environment, 1, true);
 		while(1) {
-			es_solver->run(9, environment);
+			es_solver->run(4, environment);
 			es_solver->run(1, blocked_environment);
 		}
 	});
+
+	pthread = thread.native_handle();
+	thread.detach();
 }
 
 void ESStraightLine::Step(Settings& settings)
@@ -39,7 +42,10 @@ Test* ESStraightLine::Create()
 }
 
 ESStraightLine::~ESStraightLine() {
-	thread.detach();
+	pthread_cancel(pthread);
+	
+	delete environment;
+	delete blocked_environment;
 }
 
-static int testIndex = RegisterTest("StraightLine", "ESStraightLine", ESStraightLine::Create);
+// static int testIndex = RegisterTest("StraightLine", "ESStraightLine", ESStraightLine::Create);

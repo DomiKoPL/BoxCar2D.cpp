@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "environments/mountains.hpp"
 #include "es_solver.cpp"
+#include <pthread.h>
 
 class ESMountains: public Test
 {
@@ -24,7 +25,7 @@ public:
     Mountains *blocked_environment;
 
     ES_solver<32, POPULATION_SIZE, POPULATION_SIZE> *es_solver;
-    std::thread thread;
+    pthread_t pthread;
 
     ~ESMountains();
 };

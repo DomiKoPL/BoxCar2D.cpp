@@ -24,7 +24,7 @@ public:
         std::clog << "Running SGA solver instance\t is plus: " << is_plus << "\n";
         static_assert(mu <= lambda);
         static_assert(mu % 2 == 0 and lambda % 2 == 0);
-        gen = std::mt19937(rd());
+        gen = std::mt19937(0);
         
         initialize_population();
         evaluate_population(car_environment, 0, mu);
@@ -57,7 +57,6 @@ public:
 
 
 private:
-    std::random_device rd;
     std::mt19937      gen;
     bool          is_plus;
     std::array<std::array<f_T, CHR_LEN>, mu + lambda> population;

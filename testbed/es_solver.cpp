@@ -25,7 +25,7 @@ public:
         static_assert(mu <= lambda);
         t  = K / std::sqrt(2.0 * CHR_LEN);
         t0 = K / std::sqrt(2.0 * std::sqrt(CHR_LEN));
-        gen = std::mt19937(rd());
+        gen = std::mt19937(1);
         
         initialize_sigmas();
         initialize_population();
@@ -64,7 +64,6 @@ public:
 
 
 private:
-    std::random_device rd;
     std::mt19937      gen;
     bool          is_plus;
     f_T                 t;
@@ -85,7 +84,9 @@ private:
             for(auto &sigma : sigmas.at(i))
             {
                 sigma = d(gen);
+                std::cout << sigma << " ";
             }
+            std::cout << "\n";
         }
     }
 

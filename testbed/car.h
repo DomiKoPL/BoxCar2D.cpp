@@ -14,6 +14,7 @@ public:
     const b2WheelJoint* GetWheelJoint(int idx) const { return m_springs.at(idx); }
     ~Car();
 private:
+    float m_score;
 	b2World* m_world;
     b2Body* m_body;
 	std::array<b2Body*, 8> m_wheels;

@@ -13,7 +13,7 @@ template <typename T>T random(std::mt19937& gen, T min, T max) {
 RandomTrack::RandomTrack(bool blocked, int seed) : CarEnvironment(blocked) {
     auto gen = std::mt19937(seed);
     
-    int number_of_points = random(gen, 50, 100);
+    int number_of_points = random(gen, 500, 1000);
     
     b2Vec2 gravity;
 	gravity.Set(0.0f, -10.0f);
@@ -35,10 +35,17 @@ RandomTrack::RandomTrack(bool blocked, int seed) : CarEnvironment(blocked) {
     ground->CreateFixture(&fd);
     float cur_angle = 0.f;
 
+    const float max_angle_change = b2_pi / 4;
+    const float max_angle = b2_pi / 4;
+    const float min_width = 0.5f;
+    const float max_width = 5.f;
+
     for(int i = 0; i < number_of_points; i++) {
-        float width = random(gen, 2.f, 40.f);
-        cur_angle += random(gen, -b2_pi / 10, b2_pi / 10);
-        cur_angle = std::clamp(cur_angle, -b2_pi / 4, b2_pi / 4);
+        float width = random(gen, min_width, max_width);
+        
+        cur_angle += random(gen, -max_angle_change, max_angle_change);
+        cur_angle = std::clamp(cur_angle, -max_angle, max_angle);
+
         b2Vec2 cur(start + b2Vec2(cos(cur_angle) * width, sin(cur_angle) * width));
         shape.SetTwoSided(start, cur);
         ground->CreateFixture(&fd);
@@ -60,7 +67,7 @@ std::vector<float> RandomTrack::evaluate_function(std::vector<Chromosome>& chrom
 
     Lock();
 
-    CreateCars(chromosomes, 50);
+    CreateCars(chromosomes, 20);
 
     if(not m_blocked) 
     {
@@ -74,6 +81,7 @@ std::vector<float> RandomTrack::evaluate_function(std::vector<Chromosome>& chrom
     {
         while(m_stepCount - stepsBefore < 60 * 20) 
         {
+            assert(m_stepCount >= stepsBefore);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     } 
@@ -81,6 +89,7 @@ std::vector<float> RandomTrack::evaluate_function(std::vector<Chromosome>& chrom
     {
         while(m_stepCount - stepsBefore < 60 * 20) 
         {
+            assert(m_stepCount >= stepsBefore);
             Step(s_settings);
         }
     }
@@ -92,6 +101,14 @@ std::vector<float> RandomTrack::evaluate_function(std::vector<Chromosome>& chrom
     {
         dists.push_back(m_map_width - m_cars.at(i)->GetBody()->GetPosition().x);
     }
+
+    for(auto& car : m_cars) 
+    {
+        m_cars_to_delete.push_back(car);
+    }
+    m_cars.clear();
+
+    DeleteCars();
 
     Unlock();
     return dists;

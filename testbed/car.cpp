@@ -50,7 +50,7 @@ Car::Car(Chromosome& chromosome, b2World* world, float init_speed) {
     bodyDef.friction = 10.0;
     bodyDef.filter.groupIndex = -1;
     m_body->CreateFixture(&bodyDef);
-
+    
     b2FixtureDef fd;
     fd.shape = &circle;
     fd.density = 100.f; // TODO: into chromosome

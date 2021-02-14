@@ -13,7 +13,7 @@ void CarEnvironment::Step(Settings& settings)
     
     if(m_blocked) 
     {
-        m_textLine = 26; //????
+        m_textLine = 26;
     
         if (settings.m_pause)
         {
@@ -37,7 +37,7 @@ void CarEnvironment::Step(Settings& settings)
         flags += settings.m_drawCOMs * b2Draw::e_centerOfMassBit;
         g_debugDraw.SetFlags(flags);
 
-        if(settings.m_showBest) 
+        if(settings.m_showBest and m_cars.size() > 0u) 
         {
             auto best_car = *std::max_element(m_cars.begin(), m_cars.end(), [&](auto& a, auto& b) {
                 return a->GetBody()->GetPosition().x < b->GetBody()->GetPosition().x;
@@ -47,7 +47,7 @@ void CarEnvironment::Step(Settings& settings)
             g_camera.m_center.y = best_car->GetBody()->GetPosition().y;
         }
         
-        if(settings.m_debugInfo) 
+        if(settings.m_debugInfo and m_cars.size() > 0u) 
         {
             auto best_car = *std::max_element(m_cars.begin(), m_cars.end(), [&](auto& a, auto& b) {
                 return a->GetBody()->GetPosition().x < b->GetBody()->GetPosition().x;
@@ -239,6 +239,8 @@ Test* CarEnvironment::Create()
 
 void CarEnvironment::CreateCars(std::vector<Chromosome>& chromosomes, float init_speed)
 {
+    m_stepCount = 0;
+    
     for(auto& car : m_cars) 
     {
         m_cars_to_delete.push_back(car);

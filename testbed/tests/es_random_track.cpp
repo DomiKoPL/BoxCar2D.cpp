@@ -17,7 +17,7 @@ ESRandomTrack::ESRandomTrack()
 	thread = std::thread([&]() {
 		es_solver = new ES_solver<32, POPULATION_SIZE, POPULATION_SIZE>(blocked_environment, 1, true);
 		while(1) {
-			es_solver->run(9, environment);
+			es_solver->run(4, environment);
 			es_solver->run(1, blocked_environment);
 		}
 	});

@@ -12,7 +12,7 @@
 class ESRandomTrack : public Test
 {
 public:
-    inline static constexpr int POPULATION_SIZE{50};
+    inline static constexpr int POPULATION_SIZE{200};
 
 	ESRandomTrack();
 

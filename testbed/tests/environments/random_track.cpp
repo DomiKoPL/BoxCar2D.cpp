@@ -79,16 +79,18 @@ std::vector<float> RandomTrack::evaluate_function(std::vector<Chromosome>& chrom
     auto stepsBefore = m_stepCount;
     if(m_blocked) 
     {
-        while(m_cars_done < m_cars.size() or m_stepCount > 60 * 60) 
+        while(m_cars_done < m_cars.size() and m_stepCount < 60 * 60) 
         {
+            if (m_stepCount % 600 < 10) std::clog << "BLOCKED\t" << m_cars_done << " " << m_cars.size() << "\t\t" << m_stepCount << "\n";
             assert(m_stepCount >= stepsBefore);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     } 
     else 
     {
-        while(m_cars_done < m_cars.size() or m_stepCount > 60 * 60) 
+        while(m_cars_done < m_cars.size() and m_stepCount < 60 * 60) 
         {
+            if (m_stepCount % 600 < 10) std::clog << "UNBLOCKED\t" << m_cars_done << " " << m_cars.size() << "\t\t" << m_stepCount << "\n";
             assert(m_stepCount >= stepsBefore);
             Step(s_settings);
         }

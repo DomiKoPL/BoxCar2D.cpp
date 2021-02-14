@@ -15,10 +15,13 @@ set (TESTBED_SOURCE_FILES
 	car.h
 	car.cpp
 	es_solver.cpp
+	sga_solver.cpp
 	tests/es_straight_line.hpp
 	tests/es_straight_line.cpp
 	tests/es_random_track.hpp
 	tests/es_random_track.cpp
+	tests/sga_random_track.hpp
+	tests/sga_random_track.cpp
 	tests/es_small_hills.hpp
 	tests/es_small_hills.cpp
 	tests/es_mountains.hpp

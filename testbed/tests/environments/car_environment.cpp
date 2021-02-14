@@ -108,7 +108,7 @@ void CarEnvironment::Step(Settings& settings)
         ++m_stepCount;
     }
 
-    if(m_cars_done < m_cars.size()) {
+    if(m_cars_done < m_cars.size() and m_cars_done != m_cars.size()) {
         m_cars_done = 0;
         for(auto& car : m_cars) {
             car->update(m_stepCount);

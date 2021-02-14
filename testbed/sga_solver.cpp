@@ -14,20 +14,18 @@
 using f_T = float;
 
 template <int CHR_LEN, int mu, int lambda>
-class ES_solver
+class SGA_solver
 {
 public:
     
-    ES_solver(CarEnvironment *car_environment, f_T K, bool is_es_plus)
-        : is_plus{is_es_plus}
+    SGA_solver(CarEnvironment *car_environment, f_T K, bool is_plus)
+        : is_plus{is_plus}
     {
-        std::clog << "Running ES solver instance\n";
+        std::clog << "Running SGA solver instance\t is plus: " << is_plus << "\n";
         static_assert(mu <= lambda);
-        t  = K / std::sqrt(2.0 * CHR_LEN);
-        t0 = K / std::sqrt(2.0 * std::sqrt(CHR_LEN));
+        static_assert(mu % 2 == 0 and lambda % 2 == 0);
         gen = std::mt19937(rd());
         
-        initialize_sigmas();
         initialize_population();
         evaluate_population(car_environment, 0, mu);
         for(int i = 0; i < mu ; ++i) std::cout << i << "\t" << population_values.at(i) << "\n";
@@ -40,7 +38,8 @@ public:
         {
             std::cout << "Iteration " << m_iterations_done++ << "\tbest value " << *std::min_element(std::begin(population_values), std::begin(population_values) + mu) << "\n";
             get_parent_indices();
-            create_children_population();
+            create_children_crossover();
+            mutate_children();
             evaluate_population(car_environment, mu, lambda + mu);
             choose_new_population();
         }
@@ -54,12 +53,6 @@ public:
             std::cout << i << ",";
         }
         std::cout << "}\n";
-        for (int i = 0; i < 32; ++i)
-        {
-            // std::cout << "Gene " << i << "\t" << population.at(idx).at(i) << "\n"; 
-        }
-
-        // for(int i = 0; i < mu; ++i) std::cout << i << "\t" << population_values[i] << "\n";
     }
 
 
@@ -67,27 +60,12 @@ private:
     std::random_device rd;
     std::mt19937      gen;
     bool          is_plus;
-    f_T                 t;
-    f_T                t0;
     std::array<std::array<f_T, CHR_LEN>, mu + lambda> population;
-    std::array<std::array<f_T, CHR_LEN>, mu + lambda> sigmas;
     std::array<f_T, mu + lambda> population_values;
     std::array<f_T, mu> fitness_values;
     std::array<int, lambda> parent_indices;
     std::array<int, mu + lambda> argsort_array;
     int m_iterations_done;
-
-    void initialize_sigmas()
-    {
-        std::uniform_real_distribution<f_T> d(0.1, 0.9);
-        for (int i = 0; i < mu; ++i)
-        {
-            for(auto &sigma : sigmas.at(i))
-            {
-                sigma = d(gen);
-            }
-        }
-    }
 
     void initialize_population()
     {
@@ -154,32 +132,60 @@ private:
         }
     }
 
-    void create_children_population()
+    void create_children_crossover()
     {
-        f_T add_to_all = std::normal_distribution<f_T> (0.0, t0)(gen);
-        std::normal_distribution<f_T> d(0.0, t);
-
         for (int i = mu; i < mu + lambda; ++i)
         {
             population.at(i) = population.at(parent_indices.at(i - mu));
-            sigmas.at(i) = sigmas.at(parent_indices.at(i - mu));
         }
 
-        for (int i = mu; i < mu + lambda; ++i)
+        for (int i = mu; i < mu + lambda; i += 2)
         {
-            for (int j = 0; j < CHR_LEN; ++j)
-            {
-                auto& sigma = sigmas.at(i).at(j);
-                auto& ref = population.at(i).at(j);
-                // std::cout << "Sigma przed\t" << sigmas.at(i).at(j) << "\n";
-                // std::cout << "Losuje " << d(gen) << " " << add_to_all << "\t" << t << "\t" << t0 << "\n";;
-                sigma *= std::exp(d(gen) + add_to_all);
-                // std::cout << "Sigma po\t" << sigmas.at(i).at(j) << "\n\n";
-                ref += std::normal_distribution<f_T>(0.0, sigmas.at(i).at(j))(gen);
-            }
+            auto [c1, c2] = crossover(population.at(i), population.at(i + 1));
+            population.at(i) = c1, population.at(i + 1) = c2;
         }
     }
 
+    std::pair <std::array<f_T, CHR_LEN>, std::array<f_T, CHR_LEN>> crossover(std::array<f_T, CHR_LEN> a, std::array<f_T, CHR_LEN> b)
+    {
+        std::uniform_real_distribution<f_T> d(0.0, 1.0);
+
+        std::array<f_T, CHR_LEN> c1, c2;
+
+        for (int i = 0; i < CHR_LEN; ++i) 
+        {
+            if (d(gen) <= 0.5f)
+            {
+                c1.at(i) = a.at(i);
+            }
+            else c1.at(i) = b.at(i);
+
+            if (d(gen) <= 0.5f)
+            {
+                c2.at(i) = a.at(i);
+            }
+            else c2.at(i) = b.at(i);
+        }
+
+        return std::make_pair(c1, c2);
+    }
+  
+    void mutate_children()
+    {
+        std::uniform_real_distribution<f_T> d(0.0, 1.0);
+        std::uniform_real_distribution<f_T> de(-1.0, 1.0);
+
+        for (int i = mu; i < mu + lambda; ++i)
+        {
+            if (d(gen) >= 0.05f) continue;
+
+            for (int j = 0; j < CHR_LEN; ++j)
+            {
+                population.at(i).at(j) += de(gen);
+            }
+        }
+
+    }
     void choose_new_population()
     {
         std::iota(std::begin(argsort_array), std::end(argsort_array), 0);
@@ -191,38 +197,12 @@ private:
         });
 
         std::array<std::array<f_T, CHR_LEN>, mu + lambda> population_cpy(population);
-        std::array<std::array<f_T, CHR_LEN>, mu + lambda> sigmas_cpy(sigmas);
         std::array<f_T, mu + lambda> population_values_cpy(population_values);
 
         for (int i = 0; i < mu; ++i)
         {
             population.at(i)        = population_cpy.at(argsort_array.at(left_index + i));
-            sigmas.at(i)            = sigmas_cpy.at(argsort_array.at(left_index +  i));
             population_values.at(i) = population_values_cpy.at(argsort_array.at(left_index + i));
         }
     }
 };
-
-// int main(int argc, char** argv)
-// {
-//     std::cout << "XD\n";
-//     // dlgosc chromosomu, mi, lambda, 
-//     TestCase *test_case = new TestCase();
-//     test_case->SetBlocked(false);
-//     ES_solver<32, 20, 20> solver(TestCase::evaluate_function, test_case, std::stod(argv[1]), true);
-//     test_case->SetBlocked(true);
-//     // test_case->blocked = true;
-//     // solver.run(30, test_case);
-
-//     auto x = std::thread(&ES_solver<32, 20, 20>::run, &solver, 30, test_case);
-
-//     while(1) {
-//         std::cout << "Siema siema\n";
-//         std::cin.get();
-//         Settings settings;
-//         test_case->SetBlocked(false);
-//         test_case->Step(settings);
-//         test_case->SetBlocked(true);
-//     }
-//     x.join();
-// }

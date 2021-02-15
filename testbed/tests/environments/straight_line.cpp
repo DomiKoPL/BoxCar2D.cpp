@@ -31,7 +31,7 @@ std::vector<float> StraightLine::evaluate_function(std::vector<Chromosome>& chro
 
     Lock();
 
-    CreateCars(chromosomes, 50);
+    CreateCars(chromosomes, 10);
 
     if(not m_blocked) 
     {
@@ -43,16 +43,16 @@ std::vector<float> StraightLine::evaluate_function(std::vector<Chromosome>& chro
     auto stepsBefore = m_stepCount;
     if(m_blocked) 
     {
-        while(m_cars_done < m_cars.size() and m_stepCount < 5 * 60 * 60) 
+        while(m_cars_done < m_cars.size() and m_stepCount < 30 * 60) 
         {
             if (m_stepCount % 600 < 10) std::clog << "BLOCKED\t" << m_cars_done << " " << m_cars.size() << "\t\t" << m_stepCount << "\n";
             assert(m_stepCount >= stepsBefore);
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     } 
     else 
     {
-        while(m_cars_done < m_cars.size() and m_stepCount < 5 * 60 * 60) 
+        while(m_cars_done < m_cars.size() and m_stepCount < 30 * 60) 
         {
             if (m_stepCount % 600 < 10) std::clog << "UNBLOCKED\t" << m_cars_done << " " << m_cars.size() << "\t\t" << m_stepCount << "\n";
             assert(m_stepCount >= stepsBefore);
@@ -65,7 +65,7 @@ std::vector<float> StraightLine::evaluate_function(std::vector<Chromosome>& chro
 
     for(int i = 0; i < chromosomes.size(); ++i)
     {
-        dists.push_back(m_map_width - m_cars.at(i)->GetBody()->GetPosition().x);
+        dists.push_back(m_cars.at(i)->eval(m_map_width, 30 * 60));
     }
 
     Unlock();

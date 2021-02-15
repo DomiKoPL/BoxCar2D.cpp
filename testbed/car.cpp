@@ -162,6 +162,7 @@ float Car::eval(float map_width, int max_time) const {
 
 Car::~Car() 
 {
+    assert(not m_world->IsLocked());
     m_world->DestroyBody(m_body);
 
     for(auto& whell : m_wheels) 

@@ -38,7 +38,6 @@ void ESRandomTrack::Step(Settings& settings)
 	blocked_environment->Lock();
 
 	blocked_environment->Step(settings);
-	// Test::Step(settings);
 	blocked_environment->DeleteCars();
 
 	blocked_environment->Unlock();

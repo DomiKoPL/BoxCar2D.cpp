@@ -3699,8 +3699,8 @@ void ImGui::EndFrame()
     IM_ASSERT(g.FrameScopeActive && "Forgot to call ImGui::NewFrame()?");
 
     // Notify OS when our Input Method Editor cursor has moved (e.g. CJK inputs using Microsoft IME)
-    write(1, "EO", 2);
-    std::cout << "EOEO\t" << g.PlatformImeLastPos.x << "\t" << g.PlatformImeLastPos.y << "\t" << g.PlatformImePos.x << "\t" << g.PlatformImePos.y  << "\n" << std::endl;
+    // write(1, "EO", 2);
+    // std::cout << "EOEO\t" << g.PlatformImeLastPos.x << "\t" << g.PlatformImeLastPos.y << "\t" << g.PlatformImePos.x << "\t" << g.PlatformImePos.y  << "\n" << std::endl;
     if (g.IO.ImeSetInputScreenPosFn && ImLengthSqr(g.PlatformImeLastPos - g.PlatformImePos) > 0.0001f)
     {
         g.IO.ImeSetInputScreenPosFn((int)g.PlatformImePos.x, (int)g.PlatformImePos.y);

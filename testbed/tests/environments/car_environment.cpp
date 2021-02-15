@@ -101,15 +101,15 @@ void CarEnvironment::Step(Settings& settings)
         });
 
         assert(best_car->GetBody() != nullptr);
-        float x = best_car->GetBody()->GetPosition().x;
+        // float x = best_car->GetBody()->GetPosition().x;
         
-        std::cerr << x << "\n";
-        std::cerr << (x != x) << "\n";
+        // std::cerr << x << "\n";
+        // std::cerr << (x != x) << "\n";
 
-        if(std::isnan(x)) {
-            std::cerr << "NANNNNN\n";
-            m_cars_done = m_cars.size();
-        }
+        // if(std::isnan(x)) {
+        //     std::cerr << "NANNNNN\n";
+        //     m_cars_done = m_cars.size();
+        // }
         // auto chrom = best_car->chrom;
         // for(auto i : chrom.genes) {
         //     std::cerr << i << ", ";
@@ -316,6 +316,7 @@ void CarEnvironment::CreateCars(std::vector<Chromosome>& chromosomes, float init
 
 void CarEnvironment::DeleteCars() 
 {
+    if(m_world->IsLocked()) return;
     if(m_cars_to_delete.size() == 0u) 
     {
         return;
@@ -324,6 +325,7 @@ void CarEnvironment::DeleteCars()
     for(auto& car : m_cars_to_delete) 
     {
         delete car;
+        car = nullptr;
     }
 
     m_cars_to_delete.clear();
@@ -331,8 +333,11 @@ void CarEnvironment::DeleteCars()
 
 CarEnvironment::~CarEnvironment() {
     Lock();
+
+    while(m_world->IsLocked());
+    assert(not m_world->IsLocked());
     DeleteCars();
-    
+
     for(auto& car : m_cars) 
     {
         delete car;

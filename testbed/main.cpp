@@ -388,8 +388,8 @@ static void UpdateUI()
 				static const char* items[] = {"mi,lambda", "mi+lambda"};
 				ImGui::Text("New population selection");
 				ImGui::ListBox("", &s_settings.m_newPopulationSelection, items, 2);
-				ImGui::Text("Draw per generations");
-				ImGui::SliderInt("", &s_settings.m_drawPerGenerations, 1, 20);
+				// ImGui::Text("Draw per generations");
+				// ImGui::SliderInt("", &s_settings.m_drawPerGenerations, 1, 20);
 
 				ImGui::Separator();
 

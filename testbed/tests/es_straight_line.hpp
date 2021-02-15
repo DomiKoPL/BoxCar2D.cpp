@@ -13,12 +13,7 @@
 class ESStraightLine : public Test
 {
 public:
-    inline static constexpr int POPULATION_SIZE{100};
-
-    void Keyboard(int key) override
-	{
-		blocked_environment->Keyboard(key);
-	}
+    inline static constexpr int POPULATION_SIZE{50};
 
 	ESStraightLine();
 

@@ -23,6 +23,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS 1
 
+#define _GNU_SOURCE
+#include <fenv.h>
+
 #include "imgui/imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -505,6 +508,8 @@ static void UpdateUI()
 //
 int main(int, char**)
 {
+feenableexcept(FE_INVALID);
+
 #if defined(_WIN32)
 	// Enable memory-leak reports
 	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG));

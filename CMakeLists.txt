@@ -19,7 +19,9 @@ option(BOX2D_USER_SETTINGS "Override Box2D settings with b2UserSettings.h" OFF)
 
 option(BUILD_SHARED_LIBS "Build Box2D as a shared library" OFF)
 
-add_compile_options(-Ofast)
+#add_compile_options(-Ofast)
+add_compile_options(-lstdc++fs)
+
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)

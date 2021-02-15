@@ -25,9 +25,10 @@ public:
         if(m_save_to_file) 
         {
             int i = 0;
-            std::string path = std::string("results/es_");
+            std::string path = std::string("results//es_");
             if(is_es_plus) path += std::string("plus_");
             while(std::filesystem::exists(path + std::to_string(i))) i++;
+            std::cerr << "Opening file: " << path + std::to_string(i) << "\n";
             m_out_file.open(path + std::to_string(i), std::fstream::out);
             m_cars_file.open(path + std::to_string(i) + std::string(".cars"), std::fstream::out);
 
@@ -54,7 +55,7 @@ public:
         int idx = std::min_element(population_values.begin(), population_values.begin() + mu) - population_values.begin();
         std::cout << "\tbest value " << *std::min_element(std::begin(population_values), std::begin(population_values) + mu) << "\n";
 
-        if(save_to_file) 
+        if(m_save_to_file) 
         {
 
             assert(m_out_file.is_open());

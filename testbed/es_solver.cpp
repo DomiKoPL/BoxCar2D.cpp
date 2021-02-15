@@ -1,4 +1,3 @@
-// #pragma GCC optimize ("Ofast") 
 #include "./test.h"
 #include "./settings.h"
 #include "chromosome.h"
@@ -10,6 +9,8 @@
 #include <functional>
 #include <future>
 #include <thread>
+#include <fstream>
+#include <filesystem>
 
 using f_T = float;
 
@@ -18,20 +19,58 @@ class ES_solver
 {
 public:
     
-    ES_solver(CarEnvironment *car_environment, f_T K, bool is_es_plus)
-        : is_plus{is_es_plus}
+    ES_solver(CarEnvironment *car_environment, f_T K, int seed, bool is_es_plus, bool save_to_file = false)
+        : is_plus{is_es_plus}, m_save_to_file{save_to_file}
     {
+        if(m_save_to_file) 
+        {
+            int i = 0;
+            std::string path = std::string("results/es_");
+            if(is_es_plus) path += std::string("plus_");
+            while(std::filesystem::exists(path + std::to_string(i))) i++;
+            m_out_file.open(path + std::to_string(i), std::fstream::out);
+            m_cars_file.open(path + std::to_string(i) + std::string(".cars"), std::fstream::out);
+
+            assert(m_out_file.is_open());
+            assert(m_cars_file.is_open());
+            m_out_file << "seed=" << seed << "\n";
+            m_cars_file << "seed=" << seed << "\n";
+        }
+
         std::clog << "Running ES solver instance\n";
         static_assert(mu <= lambda);
         t  = K / std::sqrt(2.0 * CHR_LEN);
         t0 = K / std::sqrt(2.0 * std::sqrt(CHR_LEN));
-        gen = std::mt19937(1);
+        gen = std::mt19937(seed);
         
         initialize_sigmas();
         initialize_population();
         evaluate_population(car_environment, 0, mu);
+        if(m_save_to_file) {
+            for(int i = 0; i < mu ; ++i) m_out_file << population_values.at(i) << " ";
+            m_out_file << std::endl;
+        }
         for(int i = 0; i < mu ; ++i) std::cout << i << "\t" << population_values.at(i) << "\n";
+        int idx = std::min_element(population_values.begin(), population_values.begin() + mu) - population_values.begin();
         std::cout << "\tbest value " << *std::min_element(std::begin(population_values), std::begin(population_values) + mu) << "\n";
+
+        if(save_to_file) 
+        {
+
+            assert(m_out_file.is_open());
+            m_cars_file << "{ ";
+            for (int i = 0; i < 32; ++i)
+            {
+                m_cars_file << population.at(idx).at(i) << ", "[i == 31];
+            }
+            m_cars_file << "}" << std::endl;
+        }
+    }
+
+    ~ES_solver() 
+    {
+        m_out_file.close();
+        m_cars_file.close();
     }
 
     void run(int iterations, CarEnvironment *car_environment)
@@ -43,21 +82,37 @@ public:
             create_children_population();
             evaluate_population(car_environment, mu, lambda + mu);
             choose_new_population();
+
+            if(m_save_to_file) 
+            {
+                assert(m_out_file.is_open());
+                for (int i = 0; i < mu; ++i) m_out_file << population_values.at(i) << " ";
+                m_out_file << std::endl;
+
+                int idx = std::min_element(population_values.begin(), population_values.begin() + mu) - population_values.begin();
+        
+                m_cars_file << "{ ";
+                for (int i = 0; i < 32; ++i)
+                {
+                    m_cars_file << population.at(idx).at(i) << ", "[i == 31];
+                }
+                m_cars_file << "}" << std::endl;
+            }
         }
 
         int idx = std::min_element(population_values.begin(), population_values.begin() + mu) - population_values.begin();
         
         assert(idx < population.size());
 
-        std::cout << "{";
-        for(auto i : population.at(idx)) {
-            std::cout << i << ",";
-        }
-        std::cout << "}\n";
-        for (int i = 0; i < 32; ++i)
-        {
-            // std::cout << "Gene " << i << "\t" << population.at(idx).at(i) << "\n"; 
-        }
+        // std::cout << "{";
+        // for(auto i : population.at(idx)) {
+        //     std::cout << i << ",";
+        // }
+        // std::cout << "}\n";
+        // for (int i = 0; i < 32; ++i)
+        // {
+        //     // std::cout << "Gene " << i << "\t" << population.at(idx).at(i) << "\n"; 
+        // }
 
         // for(int i = 0; i < mu; ++i) std::cout << i << "\t" << population_values[i] << "\n";
     }
@@ -75,6 +130,8 @@ private:
     std::array<int, lambda> parent_indices;
     std::array<int, mu + lambda> argsort_array;
     int m_iterations_done;
+    bool m_save_to_file;
+    std::fstream m_out_file, m_cars_file;
 
     void initialize_sigmas()
     {

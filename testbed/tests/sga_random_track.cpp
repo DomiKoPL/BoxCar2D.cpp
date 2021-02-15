@@ -9,30 +9,33 @@
 
 SGARandomTrack::SGARandomTrack()
 {
-	srand(time(0));
-    int seed = rand();
-	environment = new RandomTrack(false, seed);
-	blocked_environment = new RandomTrack(true, seed);	
-
-	std::thread thread = std::thread([&]() {
-		sga_solver = new SGA_solver<32, POPULATION_SIZE, POPULATION_SIZE>(blocked_environment, 1, false);
-		while(1) {
-			// SGA_solver->run(4, environment);
-			try {
-				sga_solver->run(100, blocked_environment);
-			} catch(std::exception e) {
-				std::cerr << "GOWNO\n";
-				std::cerr << e.what() << "\n";
-			}
-		}
-	});
-
-	pthread = thread.native_handle();
-	thread.detach();
+	environment = nullptr;
+	blocked_environment = nullptr;
 }
 
 void SGARandomTrack::Step(Settings& settings)
 {	
+	if(environment == nullptr) 
+	{
+		environment = new RandomTrack(false, settings.m_seed);
+		blocked_environment = new RandomTrack(true, settings.m_seed);	
+
+		std::thread thread = std::thread([&]() {
+			sga_solver = new SGA_solver<32, POPULATION_SIZE, POPULATION_SIZE>(blocked_environment, settings.m_seed, settings.m_newPopulationSelection);
+			// int per = settings.m_drawPerGenerations;
+			while(1) {
+				int per = settings.m_drawPerGenerations;
+				if(per > 1) {
+					sga_solver->run(per - 1, environment);
+				}
+				sga_solver->run(1, blocked_environment);
+			}
+		});
+
+		pthread = thread.native_handle();
+		thread.detach();
+	}
+
 	blocked_environment->Lock();
 
 	blocked_environment->Step(settings);

@@ -1,6 +1,8 @@
 #include "car_environment.hpp"
 #include <algorithm>
 #include <string>
+#include <cmath>
+#include <cfloat>
 
 CarEnvironment::CarEnvironment(bool blocked) : m_blocked{blocked} 
 {
@@ -10,6 +12,7 @@ CarEnvironment::CarEnvironment(bool blocked) : m_blocked{blocked}
 void CarEnvironment::Step(Settings& settings)
 {
     float timeStep = settings.m_hertz > 0.0f ? 1.0f / settings.m_hertz : float(0.0f);
+    assert(timeStep > 0.f);
     
     if(m_blocked) 
     {
@@ -53,6 +56,8 @@ void CarEnvironment::Step(Settings& settings)
                 return a->GetBody()->GetPosition().x < b->GetBody()->GetPosition().x;
             });
 
+            // std::clog << best_car->GetBody()->GetPosition().x << "\n";
+
             std::string done_string =   "% DONE  \t= " + std::to_string(m_cars_done * 100.f / m_cars.size());
             g_debugDraw.DrawString(5, m_textLine, done_string.c_str());
             m_textLine += m_textIncrement;
@@ -88,6 +93,35 @@ void CarEnvironment::Step(Settings& settings)
 
     }
 
+    if(m_cars.size() > 0) {
+        auto best_car = *std::max_element(m_cars.begin(), m_cars.end(), [&](auto& a, auto& b) {
+            assert(a->GetBody() != nullptr);
+            assert(b->GetBody() != nullptr);
+            return a->GetBody()->GetPosition().x < b->GetBody()->GetPosition().x;
+        });
+
+        assert(best_car->GetBody() != nullptr);
+        float x = best_car->GetBody()->GetPosition().x;
+        
+        std::cerr << x << "\n";
+        std::cerr << (x != x) << "\n";
+
+        if(std::isnan(x)) {
+            std::cerr << "NANNNNN\n";
+            m_cars_done = m_cars.size();
+        }
+        // auto chrom = best_car->chrom;
+        // for(auto i : chrom.genes) {
+        //     std::cerr << i << ", ";
+        // }
+        // for(auto& car : m_cars) {
+        //     auto chrom = car->chrom;
+
+        //     // std::cerr << car->GetBody()->GetPosition().x << " ";
+        // }
+        // std::cerr << "\n\n\n";
+    }
+
     m_world->SetAllowSleeping(settings.m_enableSleep);
     m_world->SetWarmStarting(settings.m_enableWarmStarting);
     m_world->SetContinuousPhysics(settings.m_enableContinuous);
@@ -95,7 +129,10 @@ void CarEnvironment::Step(Settings& settings)
 
     m_pointCount = 0;
 
-    m_world->Step(timeStep, settings.m_velocityIterations, settings.m_positionIterations);
+    if(m_cars_done < m_cars.size())
+    {
+        m_world->Step(timeStep, settings.m_velocityIterations, settings.m_positionIterations);
+    }
 
     if(m_blocked) 
     {
@@ -124,29 +161,31 @@ void CarEnvironment::Step(Settings& settings)
         settings.m_nextPopulation = false;
     }
 
-    if(m_blocked) {
+    // Track maximum profile times
+    {
+        const b2Profile& p = m_world->GetProfile();
+        m_maxProfile.step = b2Max(m_maxProfile.step, p.step);
+        m_maxProfile.collide = b2Max(m_maxProfile.collide, p.collide);
+        m_maxProfile.solve = b2Max(m_maxProfile.solve, p.solve);
+        m_maxProfile.solveInit = b2Max(m_maxProfile.solveInit, p.solveInit);
+        m_maxProfile.solveVelocity = b2Max(m_maxProfile.solveVelocity, p.solveVelocity);
+        m_maxProfile.solvePosition = b2Max(m_maxProfile.solvePosition, p.solvePosition);
+        m_maxProfile.solveTOI = b2Max(m_maxProfile.solveTOI, p.solveTOI);
+        m_maxProfile.broadphase = b2Max(m_maxProfile.broadphase, p.broadphase);
 
-        // Track maximum profile times
-        {
-            const b2Profile& p = m_world->GetProfile();
-            m_maxProfile.step = b2Max(m_maxProfile.step, p.step);
-            m_maxProfile.collide = b2Max(m_maxProfile.collide, p.collide);
-            m_maxProfile.solve = b2Max(m_maxProfile.solve, p.solve);
-            m_maxProfile.solveInit = b2Max(m_maxProfile.solveInit, p.solveInit);
-            m_maxProfile.solveVelocity = b2Max(m_maxProfile.solveVelocity, p.solveVelocity);
-            m_maxProfile.solvePosition = b2Max(m_maxProfile.solvePosition, p.solvePosition);
-            m_maxProfile.solveTOI = b2Max(m_maxProfile.solveTOI, p.solveTOI);
-            m_maxProfile.broadphase = b2Max(m_maxProfile.broadphase, p.broadphase);
+        m_totalProfile.step += p.step;
+        m_totalProfile.collide += p.collide;
+        m_totalProfile.solve += p.solve;
+        m_totalProfile.solveInit += p.solveInit;
+        m_totalProfile.solveVelocity += p.solveVelocity;
+        m_totalProfile.solvePosition += p.solvePosition;
+        m_totalProfile.solveTOI += p.solveTOI;
+        m_totalProfile.broadphase += p.broadphase;
+    }
 
-            m_totalProfile.step += p.step;
-            m_totalProfile.collide += p.collide;
-            m_totalProfile.solve += p.solve;
-            m_totalProfile.solveInit += p.solveInit;
-            m_totalProfile.solveVelocity += p.solveVelocity;
-            m_totalProfile.solvePosition += p.solvePosition;
-            m_totalProfile.solveTOI += p.solveTOI;
-            m_totalProfile.broadphase += p.broadphase;
-        }
+    if(m_blocked) 
+    {
+
 
         if (settings.m_drawProfile)
         {
@@ -291,10 +330,14 @@ void CarEnvironment::DeleteCars()
 }
 
 CarEnvironment::~CarEnvironment() {
+    Lock();
     DeleteCars();
     
     for(auto& car : m_cars) 
     {
         delete car;
+        car = nullptr;
     }
+
+    Unlock();
 }

@@ -1,3 +1,13 @@
+# Uruchamanie
+
+Najpierw należy zbudować program.
+./build.sh
+
+Potem możemy włączyć nasze urządzenie.
+
+./build/bin/testbed
+
+
 ![Box2D Logo](https://box2d.org/images/logo.svg)
 
 # Build Status

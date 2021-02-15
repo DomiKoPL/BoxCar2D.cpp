@@ -18,13 +18,13 @@ class SGA_solver
 {
 public:
     
-    SGA_solver(CarEnvironment *car_environment, f_T K, bool is_plus)
+    SGA_solver(CarEnvironment *car_environment, int seed, bool is_plus)
         : is_plus{is_plus}
     {
         std::clog << "Running SGA solver instance\t is plus: " << is_plus << "\n";
         static_assert(mu <= lambda);
         static_assert(mu % 2 == 0 and lambda % 2 == 0);
-        gen = std::mt19937(0);
+        gen = std::mt19937(seed);
         
         initialize_population();
         evaluate_population(car_environment, 0, mu);

@@ -7,6 +7,7 @@
 #include "chromosome.h"
 #include <algorithm>
 #include "environments/straight_line.hpp"
+#include "environments/random_track.hpp"
 #include <pthread.h>
 
 class F1StraightLine : public Test
@@ -20,7 +21,7 @@ public:
 
     ~F1StraightLine();
 
-    StraightLine *blocked_environment;
+    RandomTrack *blocked_environment;
     
     pthread_t pthread;
 };

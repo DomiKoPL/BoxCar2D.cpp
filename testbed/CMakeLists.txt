@@ -16,26 +16,26 @@ set (TESTBED_SOURCE_FILES
 	car.cpp
 	es_solver.cpp
 	sga_solver.cpp
-	tests/es_straight_line.hpp
-	tests/es_straight_line.cpp
+#	tests/es_straight_line.hpp
+#	tests/es_straight_line.cpp
 	tests/es_random_track.hpp
 	tests/es_random_track.cpp
 	tests/sga_random_track.hpp
 	tests/sga_random_track.cpp
-	tests/es_small_hills.hpp
-	tests/es_small_hills.cpp
-	tests/es_mountains.hpp
-	tests/es_mountains.cpp
+#	tests/es_small_hills.hpp
+#	tests/es_small_hills.cpp
+#	tests/es_mountains.hpp
+#	tests/es_mountains.cpp
 	tests/f1_straight_line.hpp
 	tests/f1_straight_line.cpp
 	tests/environments/car_environment.hpp
 	tests/environments/car_environment.cpp
-	tests/environments/small_hills.hpp
-	tests/environments/small_hills.cpp
+#	tests/environments/small_hills.hpp
+#	tests/environments/small_hills.cpp
 	tests/environments/straight_line.hpp
 	tests/environments/straight_line.cpp
-	tests/environments/mountains.hpp
-	tests/environments/mountains.cpp
+#	tests/environments/mountains.hpp
+#	tests/environments/mountains.cpp
 	tests/environments/random_track.hpp
 	tests/environments/random_track.cpp
 )
@@ -48,6 +48,8 @@ set_target_properties(testbed PROPERTIES
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
 )
+
+add_compile_options(-Ofast)
 
 # message(STATUS "runtime = ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 # message(STATUS "binary = ${CMAKE_CURRENT_BINARY_DIR}")

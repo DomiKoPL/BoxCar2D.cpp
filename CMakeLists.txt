@@ -8,6 +8,10 @@ project(box2d VERSION 2.4.1)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 option(BOX2D_BUILD_UNIT_TESTS "Build the Box2D unit tests" ON)
 option(BOX2D_BUILD_TESTBED "Build the Box2D testbed" ON)
 option(BOX2D_BUILD_DOCS "Build the Box2D documentation" OFF)
@@ -15,7 +19,7 @@ option(BOX2D_USER_SETTINGS "Override Box2D settings with b2UserSettings.h" OFF)
 
 option(BUILD_SHARED_LIBS "Build Box2D as a shared library" OFF)
 
-add_compile_options(-Ofast -march=native)
+add_compile_options(-Ofast)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
@@ -24,8 +28,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 
-set (CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=undefined -g" )
+# set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak -fsanitize=undefined")
+# set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak -fsanitize=undefined")
 
 include(GNUInstallDirs)
 

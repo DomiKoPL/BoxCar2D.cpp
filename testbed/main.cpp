@@ -350,10 +350,14 @@ static void ScrollCallback(GLFWwindow* window, double dx, double dy)
 	}
 }
 
+#include <iostream>
 static void RestartTest()
 {
+	std::cerr << "RESTART" << std::endl;
 	delete s_test;
+	std::cerr << "DELETE DONE" << std::endl;
 	s_test = g_testEntries[s_settings.m_testIndex].createFcn();
+	std::cerr << "NEW TEST DONE" << std::endl;
 }
 
 static void UpdateUI()
@@ -370,31 +374,41 @@ static void UpdateUI()
 		{
 			if (ImGui::BeginTabItem("Controls"))
 			{
-				ImGui::SliderInt("Vel Iters", &s_settings.m_velocityIterations, 0, 50);
-				ImGui::SliderInt("Pos Iters", &s_settings.m_positionIterations, 0, 50);
-				ImGui::SliderFloat("Hertz", &s_settings.m_hertz, 5.0f, 120.0f, "%.0f hz");
+				// ImGui::SliderInt("Vel Iters", &s_settings.m_velocityIterations, 0, 50);
+				// ImGui::SliderInt("Pos Iters", &s_settings.m_positionIterations, 0, 50);
+				ImGui::SliderFloat("Hertz", &s_settings.m_hertz, 30.0f, 120.0f, "%.0f hz");
 				
+				ImGui::Separator();
+
+
+				ImGui::InputInt("Seed", &s_settings.m_seed, 0);
+				static const char* items[] = {"mi,lambda", "mi+lambda"};
+				ImGui::Text("New population selection");
+				ImGui::ListBox("", &s_settings.m_newPopulationSelection, items, 2);
+				ImGui::Text("Draw per generations");
+				ImGui::SliderInt("", &s_settings.m_drawPerGenerations, 1, 20);
+
 				ImGui::Separator();
 
 				ImGui::Checkbox("Show best", &s_settings.m_showBest);
 				ImGui::Checkbox("Debug info ", &s_settings.m_debugInfo);
-				ImGui::Checkbox("Sleep", &s_settings.m_enableSleep);
-				ImGui::Checkbox("Warm Starting", &s_settings.m_enableWarmStarting);
-				ImGui::Checkbox("Time of Impact", &s_settings.m_enableContinuous);
-				ImGui::Checkbox("Sub-Stepping", &s_settings.m_enableSubStepping);
+				// ImGui::Checkbox("Sleep", &s_settings.m_enableSleep);
+				// ImGui::Checkbox("Warm Starting", &s_settings.m_enableWarmStarting);
+				// ImGui::Checkbox("Time of Impact", &s_settings.m_enableContinuous);
+				// ImGui::Checkbox("Sub-Stepping", &s_settings.m_enableSubStepping);
 
-				ImGui::Separator();
+				// ImGui::Separator();
 
-				ImGui::Checkbox("Shapes", &s_settings.m_drawShapes);
+				// ImGui::Checkbox("Shapes", &s_settings.m_drawShapes);
 				ImGui::Checkbox("Joints", &s_settings.m_drawJoints);
 				ImGui::Checkbox("AABBs", &s_settings.m_drawAABBs);
-				ImGui::Checkbox("Contact Points", &s_settings.m_drawContactPoints);
-				ImGui::Checkbox("Contact Normals", &s_settings.m_drawContactNormals);
-				ImGui::Checkbox("Contact Impulses", &s_settings.m_drawContactImpulse);
-				ImGui::Checkbox("Friction Impulses", &s_settings.m_drawFrictionImpulse);
-				ImGui::Checkbox("Center of Masses", &s_settings.m_drawCOMs);
-				ImGui::Checkbox("Statistics", &s_settings.m_drawStats);
-				ImGui::Checkbox("Profile", &s_settings.m_drawProfile);
+				// ImGui::Checkbox("Contact Points", &s_settings.m_drawContactPoints);
+				// ImGui::Checkbox("Contact Normals", &s_settings.m_drawContactNormals);
+				// ImGui::Checkbox("Contact Impulses", &s_settings.m_drawContactImpulse);
+				// ImGui::Checkbox("Friction Impulses", &s_settings.m_drawFrictionImpulse);
+				// ImGui::Checkbox("Center of Masses", &s_settings.m_drawCOMs);
+				// ImGui::Checkbox("Statistics", &s_settings.m_drawStats);
+				// ImGui::Checkbox("Profile", &s_settings.m_drawProfile);
 
 				ImVec2 button_sz = ImVec2(-1, 0);
 				if (ImGui::Button("Pause (P)", button_sz))
@@ -407,10 +421,11 @@ static void UpdateUI()
 					s_settings.m_nextPopulation = !s_settings.m_nextPopulation;
 				}
 
-				if (ImGui::Button("Single Step (O)", button_sz))
-				{
-					s_settings.m_singleStep = !s_settings.m_singleStep;
-				}
+				// if (ImGui::Button("Single Step (O)", button_sz))
+				// {
+				// 	s_settings.m_singleStep = !s_settings.m_singleStep;
+				// }
+
 
 				if (ImGui::Button("Restart (R)", button_sz))
 				{

@@ -50,12 +50,14 @@ struct Settings
 		m_enableWarmStarting = true;
 		m_enableContinuous = true;
 		m_enableSubStepping = false;
-		m_enableSleep = true;
+		m_enableSleep = false;
 		m_pause = false;
 		m_singleStep = false;
 		m_showBest = false;
 		m_debugInfo = false;
 		m_nextPopulation = false;
+		m_seed = 0;
+		m_drawPerGenerations = 1;
 	}
 
 	void Save();
@@ -86,4 +88,7 @@ struct Settings
 	bool m_showBest;
 	bool m_debugInfo;
 	bool m_nextPopulation;
+	int m_seed;
+	int m_newPopulationSelection;
+	int m_drawPerGenerations;
 };

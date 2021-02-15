@@ -8,6 +8,7 @@ Car::Car() {
 
 Car::Car(Chromosome& chromosome, b2World* world, float init_speed) {
     m_world = world;
+    chrom = chromosome;
     
     m_done = false;
     prev_step_count = -1;
@@ -149,6 +150,14 @@ void Car::set_done(bool done) {
 
 float Car::get_best_x() const {
     return best_x;
+}
+
+float Car::eval(float map_width, int max_time) const {
+    if(best_x > map_width) {
+        return -(100 + max_time - prev_step_count);
+    }
+
+    return map_width - best_x;
 }
 
 Car::~Car() 

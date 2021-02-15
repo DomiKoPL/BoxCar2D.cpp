@@ -16,7 +16,9 @@ public:
     bool is_done() const;
     void set_done(bool done);
     float get_best_x() const;
+    float eval(float map_width, int max_time) const;
     ~Car();
+    Chromosome chrom;
 private:
     float best_x;
     int prev_step_count;

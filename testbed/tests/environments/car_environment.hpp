@@ -32,7 +32,7 @@ public:
 
 	static Test* Create();
 
-    ~CarEnvironment();
+    virtual ~CarEnvironment();
 
 protected:
     float m_map_width;

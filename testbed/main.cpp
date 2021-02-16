@@ -508,7 +508,7 @@ static void UpdateUI()
 //
 int main(int, char**)
 {
-feenableexcept(FE_INVALID);
+	// feenableexcept(FE_INVALID);
 
 #if defined(_WIN32)
 	// Enable memory-leak reports

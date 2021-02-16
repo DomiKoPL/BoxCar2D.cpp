@@ -11,6 +11,7 @@ SGARandomTrack::SGARandomTrack()
 {
 	environment = nullptr;
 	blocked_environment = nullptr;
+	sga_solver = nullptr;
 }
 
 void SGARandomTrack::Step(Settings& settings)
@@ -51,10 +52,19 @@ Test* SGARandomTrack::Create()
 }
 
 SGARandomTrack::~SGARandomTrack() {
+	std::cerr << "WAITING FOR ~SGARandomTrack()\n";
+	environment->Lock();
+	std::cerr << "~SGARandomTrack()\n";
 	pthread_cancel(pthread);
 	
+	delete sga_solver;
+	sga_solver = nullptr;
+
 	delete environment;
+	environment = nullptr;
+	
 	delete blocked_environment;
+	blocked_environment = nullptr;
 }
 
 static int testIndex = RegisterTest("RandomTrack", "SGA", SGARandomTrack::Create);

@@ -1,29 +1,30 @@
-#ifndef __F1_STRAIGHT_LINE_HPP
-#define __F1_STRAIGHT_LINE_HPP
+#ifndef __ES_BENCHMARK_SEED1_HPP
+#define __ES_BENCHMARK_SEED1_HPP
 
 #include "test.h"
 #include <string>
 #include "car.h"
 #include "chromosome.h"
 #include <algorithm>
-#include "environments/straight_line.hpp"
 #include "environments/random_track.hpp"
 #include <pthread.h>
 
-class F1StraightLine : public Test
+class ESBenchmarkSeed1 : public Test
 {
 public:
-	F1StraightLine();
+    inline static constexpr int POPULATION_SIZE{50};
+
+	ESBenchmarkSeed1();
 
     void Step(Settings& settings) override;
 
 	static Test* Create();
 
-    ~F1StraightLine();
-
     RandomTrack *blocked_environment;
     
     pthread_t pthread;
+
+    ~ESBenchmarkSeed1();
 };
 
 #endif

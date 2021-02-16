@@ -131,7 +131,12 @@ void CarEnvironment::Step(Settings& settings)
 
     if(m_cars_done < m_cars.size())
     {
-        m_world->Step(timeStep, settings.m_velocityIterations, settings.m_positionIterations);
+        try {
+            m_world->Step(timeStep, settings.m_velocityIterations, settings.m_positionIterations);
+        } catch(std::exception e) {
+            std::cerr << "EXCEPTION:" << e.what() << "\n";
+            m_cars_done = m_cars.size();
+        }
     }
 
     if(m_blocked) 
@@ -332,9 +337,11 @@ void CarEnvironment::DeleteCars()
 }
 
 CarEnvironment::~CarEnvironment() {
-    Lock();
+    std::cerr << "WAITING FOR ~CarEnvironment\n";
+    // Lock();
+    std::cerr << "~CarEnvironment\n";
 
-    while(m_world->IsLocked());
+    // while(m_world->IsLocked());
     assert(not m_world->IsLocked());
     DeleteCars();
 
@@ -344,5 +351,5 @@ CarEnvironment::~CarEnvironment() {
         car = nullptr;
     }
 
-    Unlock();
+    // Unlock();
 }

@@ -51,7 +51,7 @@ public:
             for(int i = 0; i < mu ; ++i) m_out_file << population_values.at(i) << " ";
             m_out_file << std::endl;
         }
-        for(int i = 0; i < mu ; ++i) std::cout << i << "\t" << population_values.at(i) << "\n";
+        // for(int i = 0; i < mu ; ++i) std::cout << i << "\t" << population_values.at(i) << "\n";
         int idx = std::min_element(population_values.begin(), population_values.begin() + mu) - population_values.begin();
         std::cout << "\tbest value " << *std::min_element(std::begin(population_values), std::begin(population_values) + mu) << "\n";
 
@@ -78,6 +78,8 @@ public:
     {
         for(int i = 0; i < iterations; ++i)
         {
+            if(car_environment == nullptr) return;
+
             std::cout << "Iteration " << m_iterations_done++ << "\tbest value " << *std::min_element(std::begin(population_values), std::begin(population_values) + mu) << "\n";
             get_parent_indices();
             create_children_population();
@@ -142,9 +144,9 @@ private:
             for(auto &sigma : sigmas.at(i))
             {
                 sigma = d(gen);
-                std::cout << sigma << " ";
+                // std::cout << sigma << " ";
             }
-            std::cout << "\n";
+            // std::cout << "\n";
         }
     }
 
@@ -172,6 +174,7 @@ private:
             chrs.push_back(Chromosome(population.at(i)));
         }
 
+        if(car_environment == nullptr) return;
         auto p = car_environment->evaluate_function(chrs);
         for (int i = l_index; i < r_index; ++i)
         {

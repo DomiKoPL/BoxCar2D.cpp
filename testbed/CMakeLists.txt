@@ -18,6 +18,8 @@ set (TESTBED_SOURCE_FILES
 	sga_solver.cpp
 	tests/es_straight_line.hpp
 	tests/es_straight_line.cpp
+	tests/sga_straight_line.hpp
+	tests/sga_straight_line.cpp
 	tests/es_random_track.hpp
 	tests/es_random_track.cpp
 	tests/sga_random_track.hpp
@@ -26,8 +28,10 @@ set (TESTBED_SOURCE_FILES
 #	tests/es_small_hills.cpp
 #	tests/es_mountains.hpp
 #	tests/es_mountains.cpp
-	tests/f1_straight_line.hpp
-	tests/f1_straight_line.cpp
+	tests/es_benchmark_seed0.hpp
+	tests/es_benchmark_seed0.cpp
+	tests/es_benchmark_seed1.hpp
+	tests/es_benchmark_seed1.cpp
 	tests/environments/car_environment.hpp
 	tests/environments/car_environment.cpp
 #	tests/environments/small_hills.hpp

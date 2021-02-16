@@ -9,14 +9,17 @@
 
 ESRandomTrack::ESRandomTrack()
 {
+	std::cerr << "ESRandomTrack()\n";
 	environment = nullptr;
 	blocked_environment = nullptr;
+	es_solver = nullptr;
 }
 
 void ESRandomTrack::Step(Settings& settings)
 {	
 	if(environment == nullptr) 
 	{
+		std::cerr << "ESRandomTrack STEP FIRST\n";
 		environment = new RandomTrack(false, settings.m_seed);
 		blocked_environment = new RandomTrack(true, settings.m_seed);	
 
@@ -49,10 +52,17 @@ Test* ESRandomTrack::Create()
 }
 
 ESRandomTrack::~ESRandomTrack() {
+	std::cerr << "WAITING FOR ~ESRandomTrack()\n";
+	environment->Lock();
+	std::cerr << "~ESRandomTrack()\n";
 	pthread_cancel(pthread);
 	
+	delete es_solver;
+	es_solver = nullptr;
+
 	delete environment;
 	environment = nullptr;
+	
 	delete blocked_environment;
 	blocked_environment = nullptr;
 }

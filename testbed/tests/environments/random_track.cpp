@@ -90,7 +90,7 @@ std::vector<float> RandomTrack::evaluate_function(std::vector<Chromosome>& chrom
     {
         while(m_cars_done < m_cars.size() and m_stepCount < 4 * 60 * 60) 
         {
-            std::cerr << "STEP" << "\n";
+            // std::cerr << "STEP" << "\n";
             Lock();
             if (m_stepCount % 600 < 1) std::cerr << "UNBLOCKED???\t" << m_cars_done << " " << m_cars.size() << "\t\t" << m_stepCount << "\n";
             assert(m_stepCount >= stepsBefore);
@@ -103,10 +103,10 @@ std::vector<float> RandomTrack::evaluate_function(std::vector<Chromosome>& chrom
             }
 
             Unlock();
-            if(m_stepCount % 50 == 0) 
-            {
-                std::this_thread::sleep_for(std::chrono::nanoseconds(2));
-            }
+            // if(m_stepCount % 50 == 0) 
+            // {
+            //     std::this_thread::sleep_for(std::chrono::nanoseconds(2));
+            // }
         }
     }
 
